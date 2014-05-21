@@ -3,7 +3,19 @@ package solver {
 import Orientation._
 
 
-case class UnblockMePiece(isGoalPiece: Boolean, length: Int, orientation: Orientation)
+case class UnblockMePiece(isGoalPiece: Boolean, length: Int, orientation: Orientation) {
+
+  def calcLocations(topLeftLocation: Location): Vector[Location] = {
+    val loc: Location = topLeftLocation
+
+    val offsetFn: (Int) => Location = offset => {
+      if (orientation == Orientation.Vertical) Location(loc.x, loc.y - offset)
+      else Location(loc.x + offset, loc.y)
+    }
+
+    0.until(length).map(offsetFn).toVector
+  }
+}
 
 class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
 
