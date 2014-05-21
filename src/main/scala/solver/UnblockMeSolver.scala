@@ -48,13 +48,17 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
 
   def isValid(move: Move): Boolean = {
     val piece = pieces(move.pieceIndex)
+    val locationsOfOtherTiles: Vector[Location] = for (((piece, topLeft), index) <- initialState.zipWithIndex;
+                 location <- piece.calcLocations(topLeft)
+                 if index != move.pieceIndex)
+                 yield location
 
-    if (piece.orientation != move.orientation)
-      false
+
+    if (piece.orientation != move.orientation) false
+    else true
 
     //Check, if updated location of the piece is already blocked
 
-    true
   }
 }
 
@@ -72,15 +76,19 @@ object UnblockMePieceWithLocation {
       case xs: List[String] => (false, xs)
     }
 
-    pieceDetails match {
+    val output = pieceDetails match {
       case x :: y :: length :: orientation :: Nil => {
+        val o: Orientation = if (orientation == "V") Orientation.Vertical else if (orientation == "H") Orientation.Horizontal else throw new IllegalArgumentException("Orientation must be H/V")
+
         (
-          UnblockMePiece(isGoalPiece, length.toInt, if (orientation == "V") Orientation.Vertical else if (orientation == "H") Orientation.Horizontal else throw new IllegalArgumentException("Orientation must be H/V")),
+          UnblockMePiece(isGoalPiece, length.toInt, o),
           Location(x.toInt, y.toInt)
           )
       }
       case _ => throw new Exception("KAPOTT")
     }
+
+    output
   }
 }
 
