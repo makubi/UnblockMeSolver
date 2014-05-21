@@ -21,7 +21,7 @@ class MovesTest extends FunSuite {
 
   test("A horizontal piece must only be moved up and down") {
 
-    val actualMoves = new UnblockMeSolver(Vector((UnblockMePiece(isGoalPiece = false, 2, orientation = Orientation.Vertical), Location(2,3)))).moves
+    val actualMoves = new UnblockMeSolver(Vector((UnblockMePiece(isGoalPiece = false, 2, orientation = Orientation.Vertical), Location(2, 3)))).moves
 
     val expectedMoves: Vector[Move] = Vector(
       Up(distance = 1, pieceIndex = 0),
