@@ -33,6 +33,38 @@ class MovesTest extends FunSuite {
     assert(actualMoves.filter(_.isInstanceOf[Up]) === expectedMoves.filter(_.isInstanceOf[Up]))
     assert(actualMoves.filter(_.isInstanceOf[Down]) === expectedMoves.filter(_.isInstanceOf[Down]))
   }
+
+  test("Up-Move must update the state of the piece accordingly") {
+    val initialState:State = Vector(Location(3,3), Location(5,5))
+
+    val expectedState = Vector(Location(3,5), Location(5,5))
+
+    assert(Up(2, 0).change(initialState) === expectedState)
+  }
+
+  test("Down-Move must update the state of the piece accordingly") {
+    val initialState:State = Vector(Location(3,3), Location(5,5))
+
+    val expectedState = Vector(Location(3,1), Location(5,5))
+
+    assert(Down(2, 0).change(initialState) === expectedState)
+  }
+
+  test("Left-Move must update the state of the piece accordingly") {
+    val initialState:State = Vector(Location(3,3), Location(5,5))
+
+    val expectedState = Vector(Location(1,3), Location(5,5))
+
+    assert(Left(2, 0).change(initialState) === expectedState)
+  }
+
+  test("Right-Move must update the state of the piece accordingly") {
+    val initialState:State = Vector(Location(3,3), Location(5,5))
+
+    val expectedState = Vector(Location(5,3), Location(5,5))
+
+    assert(Right(2, 0).change(initialState) === expectedState)
+  }
 }
 
 //               Vector(Down(1,0), Down(2,0), Down(3,0), Down(4,0))
