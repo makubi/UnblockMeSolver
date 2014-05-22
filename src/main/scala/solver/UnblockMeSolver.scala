@@ -19,6 +19,8 @@ case class UnblockMePiece(isGoalPiece: Boolean, length: Int, orientation: Orient
 
 class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
 
+  import UnblockMeSolver._
+
   val (pieces, locations) = initialState.unzip
 
   val moves: Vector[Move] = getMoves
@@ -28,40 +30,57 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
     val allMoves =
       (for ((piece, index) <- pieces.zipWithIndex;
             location = locations(index);
-            offset <- 1 to (6 - location.y))
+            offset <- 1 to 6
+        if(location.y + offset) <= 6
+      )
       yield Up(offset, index)) ++
         (for ((piece, index) <- pieces.zipWithIndex;
               location = locations(index);
-              offset <- 1 to (6 - location.y - piece.length))
+              offset <- 1 to 6
+          if (location.y - piece.length) - offset + 1 > 0
+          )
         yield Down(offset, index)) ++
         (for ((piece, index) <- pieces.zipWithIndex;
               location = locations(index);
-              offset <- 1 to (location.x - 1))
+              offset <- 1 to 6
+          if location.x - offset > 0
+        )
         yield Left(offset, index)) ++
         (for ((piece, index) <- pieces.zipWithIndex;
               location = locations(index);
-              offset <- 1 to (6 - piece.length - location.x + 1))
+              offset <- 1 to 6
+         if location.x + piece.length + offset -1 <= 6
+        )
         yield Right(offset, index))
 
-    allMoves.filter(isValid)
+
+    allMoves.filter(m => isValid(m, locations, pieces))
   }
+}
 
-  def isValid(move: Move): Boolean = {
-    val piece = pieces(move.pieceIndex)
-    val locationsOfOtherTiles: Vector[Location] = for (((piece, topLeft), index) <- initialState.zipWithIndex;
-                 location <- piece.calcLocations(topLeft)
-                 if index != move.pieceIndex)
-                 yield location
-
+object UnblockMeSolver {
+  def isValid(move: Move, locationsToCheck: Vector[Location], piecesToCheck: Vector[UnblockMePiece]): Boolean = {
+    val piece = piecesToCheck(move.pieceIndex)
+    val newState: Vector[(UnblockMePiece, Location)] = piecesToCheck.zip(move.change(locationsToCheck))
 
     if (piece.orientation != move.orientation) false
+    else if(areTwoTilesAtTheSameLocation(newState)) false
     else true
 
     //Check, if updated location of the piece is already blocked
 
   }
-}
 
+  def areTwoTilesAtTheSameLocation(newState: Vector[(UnblockMePiece, Location)]): Boolean = {
+    val locationsOfAllTiles: Vector[Location] = for (((piece, topLeft), index) <- newState.zipWithIndex;
+                                                     location <- piece.calcLocations(topLeft))
+    yield location
+
+    val grouped: Map[Location, Vector[Location]] = locationsOfAllTiles.groupBy(l => l)
+    val numberOfGroupsWithDuplicateEntries: Int = grouped.count(_._2.size > 1)
+    numberOfGroupsWithDuplicateEntries > 0
+  }
+}
 
 object UnblockMePieceWithLocation {
 

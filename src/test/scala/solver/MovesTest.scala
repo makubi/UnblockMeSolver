@@ -34,6 +34,20 @@ class MovesTest extends FunSuite {
     assert(actualMoves.filter(_.isInstanceOf[Down]) === expectedMoves.filter(_.isInstanceOf[Down]))
   }
 
+  test("A vertical piece at the bottom must only be moved up wards") {
+
+    val actualMoves = new UnblockMeSolver(Vector(UnblockMePieceWithLocation("5,2,2,V"))).moves
+
+    val expectedMoves: Vector[Move] = Vector(
+      Up(distance = 1, pieceIndex = 0),
+      Up(distance = 2, pieceIndex = 0),
+      Up(distance = 3, pieceIndex = 0),
+      Up(distance = 4, pieceIndex = 0)
+    )
+
+    assert(actualMoves === expectedMoves)
+  }
+
   test("Up-Move must update the state of the piece accordingly") {
     val initialState:State = Vector(Location(3,3), Location(5,5))
 
