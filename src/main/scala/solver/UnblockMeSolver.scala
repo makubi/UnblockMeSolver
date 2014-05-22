@@ -46,14 +46,13 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
     moves.toVector
   }
 
-  class Path(val history: List[Move]) {
+  class Path(val history: List[Move], val endState: State) {
 
-    def endState: State = (history foldRight locations)(_ change _)
-    def extend(move: Move) = new Path(move :: history)
+    def extend(move: Move) = new Path(move :: history, move.change(endState))
     override def toString = s"${history.reverse mkString " "} --> $endState"
   }
 
-  val initialPath = new Path(Nil)
+  val initialPath = new Path(Nil, locations)
   def from(paths: Set[Path], explored: Set[State]): Stream[Set[Path]] =
     if (paths.isEmpty) Stream.empty
     else {
