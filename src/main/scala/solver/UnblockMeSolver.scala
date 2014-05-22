@@ -1,6 +1,5 @@
 package solver {
 
-import Orientation._
 import scala.annotation.tailrec
 
 
@@ -9,37 +8,37 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
   import UnblockMeSolver._
 
   val (pieces, locations) = initialState.unzip
-  val moves: Vector[Move] = getMoves
+  val moves: Vector[Move] = getAllPossibleMoves
 
 
   /**
    * get all possible moves from this state
    * @return
    */
-  def getMoves: Vector[Move] = {
+  def getAllPossibleMoves: Vector[Move] = {
 
-    val moveFunctions: List[(Int, Int) => Move] = List(Up.apply, Right.apply, Down.apply, Left.apply)
+    val availableMoveDirections: List[(Int, Int) => Move] = List(Up.apply, Right.apply, Down.apply, Left.apply)
 
     /**
      * helper functions, that explores the movement-possibilities of one piece into the given direction
      */
-    def helper(pieceIndex: Int, moveFn: (Int, Int) => Move): List[Move] = {
+    def getValidMovesForPiece(pieceIndex: Int, moveFn: (Int, Int) => Move): List[Move] = {
 
       @tailrec
-      def helper2(moves: List[Move], offset: Int): List[Move] = {
+      def getValidMovesForPieceHelper(moves: List[Move], offset: Int): List[Move] = {
         val move = moveFn(offset, pieceIndex)
 
-        if(isValid(move, locations, pieces)) helper2(move :: moves, offset + 1)
+        if(isValid(move, locations, pieces)) getValidMovesForPieceHelper(move :: moves, offset + 1)
         else moves.reverse
       }
 
-      helper2(Nil, 1)
+      getValidMovesForPieceHelper(Nil, 1)
     }
 
     val moves: List[Move] = (for (
-      moveFn <- moveFunctions;
+      moveFn <- availableMoveDirections;
       pieceIndex <- 0.until(pieces.size);
-      move <- helper(pieceIndex, moveFn)
+      move <- getValidMovesForPiece(pieceIndex, moveFn)
     )
     yield move).toList
 
