@@ -59,7 +59,7 @@ object UnblockMeSolver {
 
     if (piece.orientation != move.orientation) false
     else if (isPieceOutOfBounds(piece, newLocation)) false
-    else if (areTwoTilesAtTheSameLocation(newState)) false
+    else if (arePiecesOverlapping(newState)) false
     else true
   }
 
@@ -75,14 +75,12 @@ object UnblockMeSolver {
   /**
    * Checks, if there are overlapping tiles
    */
-  def areTwoTilesAtTheSameLocation(newState: Vector[(UnblockMePiece, Location)]): Boolean = {
+  def arePiecesOverlapping(newState: Vector[(UnblockMePiece, Location)]): Boolean = {
     val locationsOfAllTiles: Vector[Location] = for (((piece, topLeft), index) <- newState.zipWithIndex;
                                                      location <- piece.calcLocationOfTiles(topLeft))
     yield location
-
-    val grouped: Map[Location, Vector[Location]] = locationsOfAllTiles.groupBy(l => l)
-    val numberOfGroupsWithDuplicateEntries: Int = grouped.count(_._2.size > 1)
-    numberOfGroupsWithDuplicateEntries > 0
+    
+    locationsOfAllTiles.size != locationsOfAllTiles.toSet.size
   }
 
   /**
