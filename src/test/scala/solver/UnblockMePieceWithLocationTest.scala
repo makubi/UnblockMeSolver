@@ -67,12 +67,12 @@ class UnblockMePieceWithLocationTest extends FunSuite {
   test("A horizontal piece with a given location should block the right amount of location") {
     val (piece, location) = UnblockMePieceWithLocation("1,5,2,h")
 
-    assert(piece.calcLocationOfTiles(location) === Vector(Location(1,5), Location(2,5)))
+    assert(piece.calcLocationOfTiles(location) === Set(Location(1,5), Location(2,5)))
   }
 
   test("A vertical piece with a given location should block the right amount of location") {
     val (piece, location) = UnblockMePieceWithLocation("1,5,2,v")
 
-    assert(piece.calcLocationOfTiles(location) === Vector(Location(1,5), Location(1,4)))
+    assert(piece.calcLocationOfTiles(location) === Set(Location(1,5), Location(1,4)))
   }
 }

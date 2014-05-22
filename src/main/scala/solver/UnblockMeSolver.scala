@@ -11,6 +11,7 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
 
   def moves = getAllPossibleMoves(locations)
 
+  val availableMoveDirections: List[(Int, Int) => Move] = List(Up.apply, Right.apply, Down.apply, Left.apply)
 
   /**
    * get all possible moves from this state
@@ -18,7 +19,6 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
    */
   def getAllPossibleMoves(state: State): Vector[Move] = {
 
-    val availableMoveDirections: List[(Int, Int) => Move] = List(Up.apply, Right.apply, Down.apply, Left.apply)
 
     /**
      * helper functions, that explores the movement-possibilities of one piece into the given direction
@@ -28,8 +28,8 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
       @tailrec
       def getValidMovesForPieceHelper(moves: List[Move], offset: Int): List[Move] = {
         val move = moveFn(offset, pieceIndex)
-
-        if(isValid(move, state, pieces)) getValidMovesForPieceHelper(move :: moves, offset + 1)
+        if(move.orientation != pieces(pieceIndex).orientation) Nil
+        else if(isValid(move, state, pieces)) getValidMovesForPieceHelper(move :: moves, offset + 1)
         else moves.reverse
       }
 
@@ -99,7 +99,7 @@ object UnblockMeSolver {
    * checks, if a piece is out of bounds
    */
   def isPieceOutOfBounds(piece: UnblockMePiece, location: Location): Boolean = {
-    val tiles: Vector[Location] = piece.calcLocationOfTiles(location)
+    val tiles: Set[Location] = piece.calcLocationOfTiles(location)
 
     tiles.exists(l => l.x < 1 || l.x > 6 || l.y < 1 || l.y > 6)
   }

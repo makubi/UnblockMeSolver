@@ -4,17 +4,20 @@ import solver.Orientation._
 
 case class UnblockMePiece(isGoalPiece: Boolean, length: Int, orientation: Orientation) {
 
+  val offsetFn: (Int) => Location = offset => {
+    if (orientation == Orientation.Vertical) Location(0, length - offset - 1)
+    else Location(offset, 0)
+  }
+
+  val tiles = 0.until(length).map(offsetFn).toSet
+
   /**
    * Calculates the locations of all tiles of this piece
    */
-  def calcLocationOfTiles(topLeftLocation: Location): Vector[Location] = {
+  def calcLocationOfTiles(topLeftLocation: Location): Set[Location] = {
     val loc: Location = topLeftLocation
 
-    val offsetFn: (Int) => Location = offset => {
-      if (orientation == Orientation.Vertical) Location(loc.x, loc.y - offset)
-      else Location(loc.x + offset, loc.y)
-    }
+    tiles.map(t => Location(t.x + loc.x, loc.y - t.y))
 
-    0.until(length).map(offsetFn).toVector
   }
 }

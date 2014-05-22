@@ -22,7 +22,7 @@ class TestgameIntegrationTest extends FunSuite with BeforeAndAfter {
 
     val moves = solver.moves
 
-    val expectedMoves: Vector[Move] = Vector(Right(1, 1), Right(2, 1), Right(1, 3), Down(1, 4), Left(1, 6))
+    val expectedMoves: Set[Move] = Set(Right(1, 1), Right(2, 1), Right(1, 3), Down(1, 4), Left(1, 6))
 
     assert(expectedMoves.toSet === moves.toSet)
   }
