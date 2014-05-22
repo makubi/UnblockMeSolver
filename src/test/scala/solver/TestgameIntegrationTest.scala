@@ -1,6 +1,7 @@
 package solver
 
 import org.scalatest.{BeforeAndAfter, FunSuite}
+import solver.helpers.UnblockMePieceWithLocation
 
 class TestgameIntegrationTest extends FunSuite with BeforeAndAfter {
 

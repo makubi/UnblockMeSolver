@@ -1,6 +1,7 @@
 package solver
 
 import org.scalatest.FunSuite
+import solver.helpers.UnblockMePieceWithLocation
 
 class MovesTest extends FunSuite {
 
