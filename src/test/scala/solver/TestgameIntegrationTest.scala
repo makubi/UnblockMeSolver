@@ -35,11 +35,20 @@ class TestgameIntegrationTest extends FunSuite with BeforeAndAfter {
     assert(vec1.toSet === vec2.toSet)
   }
 
-  test("solver") {
+  test("solver - pathSets") {
 
-    val movesAndTheirEndstates = solver.pathSets.take(3).toList;
+    val movesAndTheirEndstates = solver.pathSets.take(3).toList
 
     assert(1 < movesAndTheirEndstates.size)
+
+    // --> Vector(Location(1,4), Location(1,6), Location(1,3), Location(1,1), Location(3,5), Location(6,6), Location(5,3), Location(5,2))
+  }
+
+  test("solver - solution") {
+
+    val solutions = solver.solution(Location(5,4)).take(1).toList
+
+    assert(1 < solutions.size)
 
     // --> Vector(Location(1,4), Location(1,6), Location(1,3), Location(1,1), Location(3,5), Location(6,6), Location(5,3), Location(5,2))
   }
