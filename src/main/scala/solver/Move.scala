@@ -9,35 +9,37 @@ trait Move {
   def orientation: Orientation
   def change(state: State): State = {
     val oldLocation = state(pieceIndex)
-    state updated(pieceIndex, change(oldLocation))
+    state updated(pieceIndex, changeLocation(oldLocation))
   }
-  def change(location: Location): Location
+  def changeLocation(location: Location): Location
+
+  override def toString = s"$pieceIndex:${this.getClass.getSimpleName.head}$distance"
 }
 
 case class Up(distance: Int, pieceIndex: Int) extends Move {
   val orientation = Orientation.Vertical
-  override def change(oldLocation: Location): Location = {
+  override def changeLocation(oldLocation: Location): Location = {
     Location(oldLocation.x, oldLocation.y + distance)
   }
 }
 
 case class Down(distance: Int, pieceIndex: Int) extends Move {
   val orientation = Orientation.Vertical
-  override def change(oldLocation: Location): Location = {
+  override def changeLocation(oldLocation: Location): Location = {
     Location(oldLocation.x, oldLocation.y - distance)
   }
 }
 
 case class Left(distance: Int, pieceIndex: Int) extends Move {
   val orientation = Orientation.Horizontal
-  override def change(oldLocation: Location): Location = {
+  override def changeLocation(oldLocation: Location): Location = {
     Location(oldLocation.x - distance, oldLocation.y)
   }
 }
 
 case class Right(distance: Int, pieceIndex: Int) extends Move {
   val orientation = Orientation.Horizontal
-  override def change(oldLocation: Location): Location = {
+  override def changeLocation(oldLocation: Location): Location = {
     Location(oldLocation.x + distance, oldLocation.y)
   }
 }

@@ -8,14 +8,15 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
   import UnblockMeSolver._
 
   val (pieces, locations) = initialState.unzip
-  val moves: Vector[Move] = getAllPossibleMoves
+
+  def moves = getAllPossibleMoves(locations)
 
 
   /**
    * get all possible moves from this state
    * @return
    */
-  def getAllPossibleMoves: Vector[Move] = {
+  def getAllPossibleMoves(state: State): Vector[Move] = {
 
     val availableMoveDirections: List[(Int, Int) => Move] = List(Up.apply, Right.apply, Down.apply, Left.apply)
 
@@ -28,7 +29,7 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
       def getValidMovesForPieceHelper(moves: List[Move], offset: Int): List[Move] = {
         val move = moveFn(offset, pieceIndex)
 
-        if(isValid(move, locations, pieces)) getValidMovesForPieceHelper(move :: moves, offset + 1)
+        if(isValid(move, state, pieces)) getValidMovesForPieceHelper(move :: moves, offset + 1)
         else moves.reverse
       }
 
@@ -44,6 +45,27 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
 
     moves.toVector
   }
+
+  class Path(val history: List[Move]) {
+
+    def endState: State = (history foldRight locations)(_ change _)
+    def extend(move: Move) = new Path(move :: history)
+    override def toString = s"${history.reverse mkString " "} --> $endState"
+  }
+
+  val initialPath = new Path(Nil)
+  def from(paths: Set[Path]): Stream[Set[Path]] =
+    if (paths.isEmpty) Stream.empty
+    else {
+      val more = for {
+        path <- paths
+        next <- getAllPossibleMoves(path.endState) map path.extend
+      } yield next
+
+      paths #:: from(more)
+    }
+
+  val pathSets = from(Set(initialPath))
 }
 
 object UnblockMeSolver {

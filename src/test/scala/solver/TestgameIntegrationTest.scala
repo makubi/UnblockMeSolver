@@ -18,7 +18,7 @@ class TestgameIntegrationTest extends FunSuite with BeforeAndAfter {
   
   val solver = new UnblockMeSolver(initialState)
 
-  test ("foobar") {
+  test ("initial moves must be generated as expected") {
 
     val moves = solver.moves
 
@@ -27,11 +27,20 @@ class TestgameIntegrationTest extends FunSuite with BeforeAndAfter {
     assert(expectedMoves.toSet === moves.toSet)
   }
 
-  test("Set equality") {
+  test("testing equality of two differently sorted vectors using Set-equality") {
 
     val vec1 = Vector(Right(1, 1), Right(2, 1), Right(1, 3), Down(1, 4), Left(1, 6))
     val vec2 = vec1.reverse
 
     assert(vec1.toSet === vec2.toSet)
+  }
+
+  test("solver") {
+
+    val movesAndTheirEndstates = solver.pathSets.take(3).toList;
+
+    assert(1 < movesAndTheirEndstates.size)
+
+    // --> Vector(Location(1,4), Location(1,6), Location(1,3), Location(1,1), Location(3,5), Location(6,6), Location(5,3), Location(5,2))
   }
 }

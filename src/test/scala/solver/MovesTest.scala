@@ -80,6 +80,11 @@ class MovesTest extends FunSuite {
 
     assert(Right(2, 0).change(initialState) === expectedState)
   }
+
+  test("toString") {
+    assert("0:U1" === Up(distance = 1, pieceIndex = 0).toString)
+
+  }
 }
 
 //               Vector(Down(1,0), Down(2,0), Down(3,0), Down(4,0))
