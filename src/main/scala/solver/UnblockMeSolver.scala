@@ -108,7 +108,7 @@ object UnblockMeSolver {
    * Checks, if there are overlapping tiles
    */
   def arePiecesOverlapping(newState: Vector[(UnblockMePiece, Location)]): Boolean = {
-    val locationsOfAllTiles: Vector[Location] = for (((piece, topLeft), index) <- newState.zipWithIndex;
+    val locationsOfAllTiles: Vector[Location] = for ((piece, topLeft) <- newState;
                                                      location <- piece.calcLocationOfTiles(topLeft))
     yield location
     
