@@ -7,11 +7,15 @@ import solver.helpers.UnblockMePieceWithLocation
 class SolverTest extends FunSuite with BeforeAndAfter {
 
   test("areTwoTilesAtTheSameLocation should return false if there are no overlapping tiles") {
-    assert(!UnblockMeSolver.arePiecesOverlapping(Vector(UnblockMePieceWithLocation("G,1,4,2,H"), UnblockMePieceWithLocation("1,3,2,V"))))
+    val input: Vector[(UnblockMePiece, Location)] = Vector(UnblockMePieceWithLocation("G,1,4,2,H"), UnblockMePieceWithLocation("1,3,2,V"))
+    val (pieces, locations) = input.unzip
+    assert(!UnblockMeSolver.arePiecesOverlapping(pieces, locations))
   }
 
   test("areTwoTilesAtTheSameLocation should return true if there are overlapping tiles") {
-    assert(UnblockMeSolver.arePiecesOverlapping(Vector(UnblockMePieceWithLocation("G,1,4,2,H"), UnblockMePieceWithLocation("1,4,2,V"))))
+    val input: Vector[(UnblockMePiece, Location)] = Vector(UnblockMePieceWithLocation("G,1,4,2,H"), UnblockMePieceWithLocation("1,4,2,V"))
+    val (pieces, locations) = input.unzip
+    assert(UnblockMeSolver.arePiecesOverlapping(pieces, locations))
   }
 
   test("A tile, that is blocked by another tile must not move in the direction of the blocked tile (even if there is enough space behind the blocker)") {

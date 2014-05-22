@@ -86,12 +86,12 @@ object UnblockMeSolver {
    */
   def isValid(move: Move, locationsToCheck: Vector[Location], piecesToCheck: Vector[UnblockMePiece]): Boolean = {
     val piece = piecesToCheck(move.pieceIndex)
-    val newState: Vector[(UnblockMePiece, Location)] = piecesToCheck.zip(move.change(locationsToCheck))
-    val newLocation: Location = newState(move.pieceIndex)._2
+    val newState: State = move.change(locationsToCheck)
+    val newLocation: Location = newState(move.pieceIndex)
 
     if (piece.orientation != move.orientation) false
     else if (isPieceOutOfBounds(piece, newLocation)) false
-    else if (arePiecesOverlapping(newState)) false
+    else if (arePiecesOverlapping(piecesToCheck, newState)) false
     else true
   }
 
@@ -107,12 +107,26 @@ object UnblockMeSolver {
   /**
    * Checks, if there are overlapping tiles
    */
-  def arePiecesOverlapping(newState: Vector[(UnblockMePiece, Location)]): Boolean = {
-    val locationsOfAllTiles: Vector[Location] = for ((piece, topLeft) <- newState;
-                                                     location <- piece.calcLocationOfTiles(topLeft))
-    yield location
-    
-    locationsOfAllTiles.size != locationsOfAllTiles.toSet.size
+  def arePiecesOverlapping(pieces: Vector[UnblockMePiece], newState: State): Boolean = {
+
+
+    val array: Array[Boolean] = Array.ofDim(36)
+
+    val locations = for {
+      (piece, location) <- pieces.zip(newState)
+      location <- piece.calcLocationOfTiles(location)
+    } yield location
+
+    var duplicateFound = false
+    for ( loc <- locations; if !duplicateFound) {
+      val arrayIndex = (loc.x - 1) * 6 + (loc.y -1)
+      if(array(arrayIndex)) duplicateFound = true
+      else array.update(arrayIndex, true)
+    }
+
+    duplicateFound
+
+
   }
 
   /**
@@ -121,6 +135,7 @@ object UnblockMeSolver {
   def getCollectionExceptElementAt[T](index: Int, list: List[T]): List[T] = {
     list.take(index) ::: list.takeRight(list.size-index-1)
   }
+
 }
 
 }
