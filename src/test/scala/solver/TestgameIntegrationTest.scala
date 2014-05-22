@@ -21,9 +21,15 @@ class TestgameIntegrationTest extends FunSuite with BeforeAndAfter {
 
     val moves = solver.moves
 
-    val expectedMoves: Vector[Move] = Vector(Right(1, 1), Right(2, 1), Right(1, 3), Left(1, 6), Down(1, 4))
+    val expectedMoves: Vector[Move] = Vector(Right(1, 1), Right(2, 1), Right(1, 3), Down(1, 4), Left(1, 6))
 
     assert(expectedMoves === moves)
+
+    //               Vector(Left(1,6), Down(1,4), Right(1,1), Right(2,1), Right(1,3))
+    // did not equal Vector(Down(1,4), Left(1,6), Right(1,1), Right(2,1), Right(1,3))
+
+
+
   }
 }
 
@@ -44,6 +50,13 @@ class SolverTest extends FunSuite with BeforeAndAfter {
     val moves = solver.moves
 
     assert(Vector.empty[Move] === moves)
+  }
+
+  test("getCollectionExceptElementAt") {
+
+    val list = List(0,1,2,3,4,5)
+
+    assert(UnblockMeSolver.getCollectionExceptElementAt(2, list) === List(0,1,3,4,5))
 
   }
 

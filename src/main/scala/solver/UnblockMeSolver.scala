@@ -1,11 +1,12 @@
 package solver {
 
 import Orientation._
+import scala.annotation.tailrec
 
 
 case class UnblockMePiece(isGoalPiece: Boolean, length: Int, orientation: Orientation) {
 
-  def calcLocations(topLeftLocation: Location): Vector[Location] = {
+  def calcLocationOfTiles(topLeftLocation: Location): Vector[Location] = {
     val loc: Location = topLeftLocation
 
     val offsetFn: (Int) => Location = offset => {
@@ -25,36 +26,32 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
 
   val moves: Vector[Move] = getMoves
 
-  def getMoves = {
 
-    val allMoves =
-      (for ((piece, index) <- pieces.zipWithIndex;
-            location = locations(index);
-            offset <- 1 to 6
-        if(location.y + offset) <= 6
-      )
-      yield Up(offset, index)) ++
-        (for ((piece, index) <- pieces.zipWithIndex;
-              location = locations(index);
-              offset <- 1 to 6
-          if (location.y - piece.length) - offset + 1 > 0
-          )
-        yield Down(offset, index)) ++
-        (for ((piece, index) <- pieces.zipWithIndex;
-              location = locations(index);
-              offset <- 1 to 6
-          if location.x - offset > 0
-        )
-        yield Left(offset, index)) ++
-        (for ((piece, index) <- pieces.zipWithIndex;
-              location = locations(index);
-              offset <- 1 to 6
-         if location.x + piece.length + offset -1 <= 6
-        )
-        yield Right(offset, index))
+  def getMoves: Vector[Move] = {
 
+    val moveFunctions: List[(Int, Int) => Move] = List(Up.apply, Right.apply, Down.apply, Left.apply)
 
-    allMoves.filter(m => isValid(m, locations, pieces))
+    def helper(pieceIndex: Int, moveFn: (Int, Int) => Move): List[Move] = {
+
+      @tailrec
+      def helper2(moves: List[Move], offset: Int): List[Move] = {
+        val move = moveFn(offset, pieceIndex)
+
+        if(isValid(move, locations, pieces)) helper2(move :: moves, offset + 1)
+        else moves.reverse
+      }
+
+      helper2(Nil, 1)
+    }
+
+    val moves: List[Move] = (for (
+      moveFn <- moveFunctions;
+      pieceIndex <- 0.until(pieces.size);
+      move <- helper(pieceIndex, moveFn)
+    )
+    yield move).toList
+
+    moves.toVector
   }
 }
 
@@ -62,23 +59,32 @@ object UnblockMeSolver {
   def isValid(move: Move, locationsToCheck: Vector[Location], piecesToCheck: Vector[UnblockMePiece]): Boolean = {
     val piece = piecesToCheck(move.pieceIndex)
     val newState: Vector[(UnblockMePiece, Location)] = piecesToCheck.zip(move.change(locationsToCheck))
+    val newLocation: Location = move.change(locationsToCheck(move.pieceIndex))
 
     if (piece.orientation != move.orientation) false
-    else if(areTwoTilesAtTheSameLocation(newState)) false
+    else if (isPieceOutOfBounds(piece, newLocation)) false
+    else if (areTwoTilesAtTheSameLocation(newState)) false
     else true
+  }
+  
+  def isPieceOutOfBounds(piece: UnblockMePiece, location: Location): Boolean = {
+    val tiles: Vector[Location] = piece.calcLocationOfTiles(location)
 
-    //Check, if updated location of the piece is already blocked
-
+    tiles.exists(l => l.x < 1 || l.x > 6 || l.y < 1 || l.y > 6)
   }
 
   def areTwoTilesAtTheSameLocation(newState: Vector[(UnblockMePiece, Location)]): Boolean = {
     val locationsOfAllTiles: Vector[Location] = for (((piece, topLeft), index) <- newState.zipWithIndex;
-                                                     location <- piece.calcLocations(topLeft))
+                                                     location <- piece.calcLocationOfTiles(topLeft))
     yield location
 
     val grouped: Map[Location, Vector[Location]] = locationsOfAllTiles.groupBy(l => l)
     val numberOfGroupsWithDuplicateEntries: Int = grouped.count(_._2.size > 1)
     numberOfGroupsWithDuplicateEntries > 0
+  }
+
+  def getCollectionExceptElementAt[T](index: Int, list: List[T]): List[T] = {
+    list.take(index) ::: list.takeRight(list.size-index-1)
   }
 }
 

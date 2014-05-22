@@ -4,7 +4,7 @@ import org.scalatest.FunSuite
 
 class MovesTest extends FunSuite {
 
-  test("A vertical piece must only be moved left and right") {
+  test("A horizontal piece must only be moved left and right") {
 
     val actualMoves = new UnblockMeSolver(Vector((UnblockMePiece(isGoalPiece = false, 2, orientation = Orientation.Horizontal), Location(2,1)))).moves
 
@@ -19,9 +19,9 @@ class MovesTest extends FunSuite {
     assert(actualMoves.filter(_.isInstanceOf[Right]) === expectedMoves.filter(_.isInstanceOf[Right]))
   }
 
-  test("A horizontal piece must only be moved up and down") {
+  test("A vertical piece must only be moved up and down") {
 
-    val actualMoves = new UnblockMeSolver(Vector((UnblockMePiece(isGoalPiece = false, 2, orientation = Orientation.Vertical), Location(2, 3)))).moves
+    val actualMoves = new UnblockMeSolver(Vector(UnblockMePieceWithLocation("2,3,2,V"))).moves
 
     val expectedMoves: Vector[Move] = Vector(
       Up(distance = 1, pieceIndex = 0),
@@ -34,7 +34,7 @@ class MovesTest extends FunSuite {
     assert(actualMoves.filter(_.isInstanceOf[Down]) === expectedMoves.filter(_.isInstanceOf[Down]))
   }
 
-  test("A vertical piece at the bottom must only be moved up wards") {
+  test("A vertical piece at the bottom must only be moved upwards") {
 
     val actualMoves = new UnblockMeSolver(Vector(UnblockMePieceWithLocation("5,2,2,V"))).moves
 
