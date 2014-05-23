@@ -28,8 +28,8 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
       @tailrec
       def getValidMovesForPieceHelper(moves: List[Move], offset: Int): List[Move] = {
         val move = moveFn(offset, pieceIndex)
-        if(move.orientation != pieces(pieceIndex).orientation) Nil
-        else if(isValid(move, state, pieces)) getValidMovesForPieceHelper(move :: moves, offset + 1)
+        if (move.orientation != pieces(pieceIndex).orientation) Nil
+        else if (isValid(move, state, pieces)) getValidMovesForPieceHelper(move :: moves, offset + 1)
         else moves.reverse
       }
 
@@ -49,10 +49,12 @@ class UnblockMeSolver(initialState: Vector[(UnblockMePiece, Location)]) {
   class Path(val history: List[Move], val endState: State) {
 
     def extend(move: Move) = new Path(move :: history, move.change(endState))
+
     override def toString = s"${history.reverse mkString " "} --> $endState"
   }
 
   val initialPath = new Path(Nil, locations)
+
   def from(paths: Set[Path], explored: Set[State]): Stream[Set[Path]] =
     if (paths.isEmpty) Stream.empty
     else {
@@ -109,19 +111,21 @@ object UnblockMeSolver {
    */
   def arePiecesOverlapping(pieces: Vector[UnblockMePiece], newState: State): Boolean = {
 
-
     val array: Array[Boolean] = Array.ofDim(36)
 
-    val locations = for {
-      (piece, location) <- pieces.zip(newState)
-      location <- piece.calcLocationOfTiles(location)
-    } yield location
-
     var duplicateFound = false
-    for ( loc <- locations; if !duplicateFound) {
-      val arrayIndex = (loc.x - 1) * 6 + (loc.y -1)
-      if(array(arrayIndex)) duplicateFound = true
-      else array.update(arrayIndex, true)
+
+    //construct array
+    for (index <- 0.until(pieces.size); if !duplicateFound) {
+
+      val piece = pieces(index)
+      val location = newState(index)
+
+      for (tileLoc <- piece.calcLocationOfTiles(location)) {
+        val arrayIndex = (tileLoc.x - 1) * 6 + (tileLoc.y - 1)
+        if (array(arrayIndex)) duplicateFound = true
+        else array.update(arrayIndex, true)
+      }
     }
 
     duplicateFound
@@ -133,7 +137,7 @@ object UnblockMeSolver {
    *
    */
   def getCollectionExceptElementAt[T](index: Int, list: List[T]): List[T] = {
-    list.take(index) ::: list.takeRight(list.size-index-1)
+    list.take(index) ::: list.takeRight(list.size - index - 1)
   }
 
 }
