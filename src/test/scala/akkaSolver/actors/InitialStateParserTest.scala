@@ -6,7 +6,6 @@ import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import scala.concurrent.duration._
 import akkaSolver.actors.InitialStateParser.{InitialStateParseError, InitialState, GetInitialState}
-import akkaSolver.actors.Explorer.{State, InitialStateFound}
 import akkaSolver.helpers.{Orientation, UnblockMePiece}
 
 class InitialStateParserTest extends TestKit(ActorSystem("TestKitUsageSpec",
