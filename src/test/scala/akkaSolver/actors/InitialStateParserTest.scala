@@ -20,8 +20,8 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
 
     "parse a valid GetInitialState() message correctly" in {
 
-      val actorRef = system.actorOf(InitialStateParser.props())
-      actorRef ! GetInitialState(initialState)
+      val initialStateParserActor = system.actorOf(InitialStateParser.props())
+      initialStateParserActor ! GetInitialState(initialState)
 
       val expectedState: String = "11315652"
       val expectedPieces: Vector[UnblockMePiece] = Vector(

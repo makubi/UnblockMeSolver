@@ -7,10 +7,10 @@ import org.scalatest.Matchers
 import com.typesafe.config.ConfigFactory
 
 import akka.actor._
-import akka.testkit.{TestProbe, DefaultTimeout, ImplicitSender, TestKit}
+import akka.testkit._
 import scala.concurrent.duration._
-import akkaSolver.actors.InitialStateParser.GetInitialState
 import akkaSolver.actors.Solver.Start
+import akkaSolver.actors.InitialStateParser.GetInitialState
 
 
 class SolverTestKit
