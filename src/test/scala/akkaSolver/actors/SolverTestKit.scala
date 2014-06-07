@@ -31,9 +31,6 @@ class SolverTestKit
       val neighbourFinderRef = system.actorOf(NeighbourFinder.props())
       val initialStateParserProbe = TestProbe()
 
-      val explorerProps = Explorer.props(OpenList.props(), ClosedList.props(), NeighbourFinder.props(), InitialStateParser.props())
-
-      val makeExplorer: (ActorRefFactory) => ActorRef = context => context.actorOf(explorerProps, "Explorer")
       val makeOpenlist: (ActorRefFactory) => ActorRef = (_: ActorRefFactory) => openListRef
       val makeClosedList: (ActorRefFactory) => ActorRef = (_: ActorRefFactory) => closedListRef
       val makeNeighbour: (ActorRefFactory) => ActorRef = (_: ActorRefFactory) => neighbourFinderRef
@@ -41,7 +38,6 @@ class SolverTestKit
 
       //TODO: Test, if children get spawned properly
       val actorRef = system.actorOf(Props(new Solver(
-        makeExplorer,
         makeOpenlist,
         makeClosedList,
         makeNeighbour,
@@ -53,11 +49,3 @@ class SolverTestKit
   }
 }
 
-object TestKitUsageSpec {
-  // Define your test specific configuration here
-  val config = """
-    akka {
-      loglevel = "DEBUG"
-    }
-               """
-}

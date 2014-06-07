@@ -10,7 +10,7 @@ import akkaSolver.actors.Solver.Start
 import akkaSolver.actors.InitialStateParser.{ParseInitialStateResponse, ParseInitialStateRequest}
 import akkaSolver.actors.ClosedList.AddToOpenListIfNotOnClosedList
 
-class Solver(makeExplorer: ActorRefFactory => ActorRef, makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRefFactory => ActorRef, makeNeighbourFinder: ActorRefFactory => ActorRef, makeInitialStateParser: ActorRefFactory => ActorRef) extends Actor with ActorLogging {
+class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRefFactory => ActorRef, makeNeighbourFinder: ActorRefFactory => ActorRef, makeInitialStateParser: ActorRefFactory => ActorRef) extends Actor with ActorLogging {
   override def receive: Receive = idle
 
   private var solutionRequester: ActorRef = _
@@ -18,18 +18,17 @@ class Solver(makeExplorer: ActorRefFactory => ActorRef, makeOpenList: ActorRefFa
   def idle: Receive = LoggingReceive {
 
     case Start(input) => {
-      val explorer: ActorRef = makeExplorer(context)
       val openList: ActorRef = makeOpenList(context)
       val closedList: ActorRef = makeClosedList(context)
       val neighbourFinder = makeNeighbourFinder(context)
       val initialStateParser = makeInitialStateParser(context)
       solutionRequester = sender()
-      context.become(solving(explorer, openList, closedList, neighbourFinder, initialStateParser))
+      context.become(solving(openList, closedList, neighbourFinder, initialStateParser))
       initialStateParser ! ParseInitialStateRequest(input)
     }
   }
 
-  def solving(explorer: ActorRef, openList: ActorRef, closedList: ActorRef, neighbourFinder: ActorRef, initialStateParser: ActorRef): Receive = LoggingReceive {
+  def solving(openList: ActorRef, closedList: ActorRef, neighbourFinder: ActorRef, initialStateParser: ActorRef): Receive = LoggingReceive {
 
     case Start(initialState) => log.info(s"Dude, I'm busy. Cannot process $initialState right now.") //do nothing - i'm busy
     case parseInitialStateResponse @ ParseInitialStateResponse(stateString, pieces) => {
@@ -71,8 +70,8 @@ class Solver(makeExplorer: ActorRefFactory => ActorRef, makeOpenList: ActorRefFa
 
 object Solver {
 
-  def props(explorerProps: Props, openListProps: Props, closedListProps: Props, neighbourFinderProps: Props, initialStateParserProps: Props): Props = {
-    Props(new Solver(_.actorOf(explorerProps), _.actorOf(openListProps), _.actorOf(closedListProps), _.actorOf(neighbourFinderProps), _.actorOf(initialStateParserProps)))
+  def props(openListProps: Props, closedListProps: Props, neighbourFinderProps: Props, initialStateParserProps: Props): Props = {
+    Props(new Solver(_.actorOf(openListProps), _.actorOf(closedListProps), _.actorOf(neighbourFinderProps), _.actorOf(initialStateParserProps)))
   }
 
   implicit object StateOrdering extends Ordering[State] {
