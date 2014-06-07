@@ -1,36 +1,59 @@
 package akkaSolver.actors
 
-import akka.testkit.{ImplicitSender, DefaultTimeout, TestKit}
+import akka.testkit._
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
-import akkaSolver.actors.OpenList.{GetNextStateToExplore, AddState}
-import akkaSolver.actors.Solver.State
+import org.scalatest.{BeforeAndAfterAll, WordSpecLike}
 import scala.concurrent.duration._
+import akkaSolver.actors.Solver.{StateWithLowestFCost, State}
+import akkaSolver.actors.OpenList.AddState
+import akkaSolver.actors.OpenList.GetStateWithLowestFCost
 
-class OpenListTest extends TestKit(ActorSystem("TestKitUsageSpec",
-    ConfigFactory.parseString(OpenListTest.config)))
-  with DefaultTimeout with ImplicitSender
-  with WordSpecLike with Matchers with BeforeAndAfterAll {
+class OpenListInternalsTest extends TestKit(ActorSystem("TestKitUsageSpec",
+  ConfigFactory.parseString(OpenListTest.config)))
+with DefaultTimeout with ImplicitSender with WordSpecLike with BeforeAndAfterAll {
 
-  "An openlist" should {
+  var openListActorRef: TestActorRef[OpenList] = _
+  var openListActor: OpenList = _
 
-    "return the item with the lowest f value" in {
-      val openListActor = system.actorOf(OpenList.props())
-
-      openListActor ! AddState(State("111", 0, 111))
-      openListActor ! AddState(State("112", 0, 112))
-      openListActor ! AddState(State("110", 0, 110))
-
-      openListActor ! GetNextStateToExplore
-
-      expectMsg(10 millis, State("110", 0, 110))
-    }
-
+  override def beforeAll() {
+    openListActorRef = TestActorRef[OpenList](OpenList.props(), "OpenList")
+    openListActor = openListActorRef.underlyingActor
   }
 
+  "An openlist" should {
+    "add a state to the list" in {
 
+      assert(openListActor.openList.size === 0)
 
+      openListActorRef ! AddState(State("111", 0, 111))
+      expectNoMsg(10 millis)
+
+      assert(openListActor.openList.size === 1)
+    }
+
+    "add duplicate state only once" in {
+      openListActorRef ! AddState(State("111", 0, 111))
+      openListActorRef ! AddState(State("111", 0, 111))
+      expectNoMsg(10 millis)
+
+      assert(openListActor.openList.size === 1)
+    }
+
+    "remove a state from the internal queue if GetNextStateToExploreIsReceived" in {
+      openListActorRef ! AddState(State("111", 0, 111))
+      openListActorRef ! AddState(State("112", 0, 112))
+      openListActorRef ! AddState(State("110", 0, 110))
+
+      openListActorRef ! GetStateWithLowestFCost
+
+      assert(openListActor.openList.size === 2)
+      expectMsg(5 millis, StateWithLowestFCost(State("110", 0, 110)))
+
+      val statesInQueue = openListActor.openList.toList.map(s => s.state)
+      assert(statesInQueue === List("111", "112"))
+    }
+  }
 
 }
 

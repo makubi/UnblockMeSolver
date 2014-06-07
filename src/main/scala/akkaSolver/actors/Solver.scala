@@ -3,7 +3,7 @@ package akkaSolver.actors
 import akka.actor._
 import akka.event.LoggingReceive
 import akkaSolver.actors.Solver._
-import akkaSolver.actors.OpenList.{AddState, GetNextStateToExplore}
+import akkaSolver.actors.OpenList.{AddState, GetStateWithLowestFCost}
 import akkaSolver.actors.NeighbourFinder.{InitializeWithState, FindNeighbours}
 import akkaSolver.actors.Solver.StateWithLowestFCost
 import akkaSolver.actors.Solver.Start
@@ -41,7 +41,7 @@ class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRef
 
     case InitialState(state) =>
       openList ! AddState(state)
-      openList ! GetNextStateToExplore
+      openList ! GetStateWithLowestFCost
 
     //Openlist schickt immer dann eine Nachricht, wenn
     case StateWithLowestFCost(state) => {
@@ -61,8 +61,7 @@ class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRef
 
       closedList ! AddToOpenListIfNotOnClosedList(neighbourStates, openList)
 
-      openList ! GetNextStateToExplore
-
+      openList ! GetStateWithLowestFCost
   }
 
   def isSolved(state: State): Boolean = false
@@ -74,12 +73,12 @@ object Solver {
     Props(new Solver(_.actorOf(openListProps), _.actorOf(closedListProps), _.actorOf(neighbourFinderProps), _.actorOf(initialStateParserProps)))
   }
 
-  implicit object StateOrdering extends Ordering[State] {
-    def compare(a:State, b:State) = a.f compare b.f
-  }
-
   case class State(state: String, g: Int, h: Int) {
     def f = g + h
+  }
+
+  object StateOrderingForPriorityQueue extends Ordering[State] {
+    def compare(a:State, b:State) = -(a.f compare b.f)
   }
 
   case class InitialState(state: State)
