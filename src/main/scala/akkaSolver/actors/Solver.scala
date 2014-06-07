@@ -3,7 +3,7 @@ package akkaSolver.actors
 import akka.actor._
 import akka.event.LoggingReceive
 import akkaSolver.actors.Solver._
-import akkaSolver.actors.OpenList.GetNextStateToExplore
+import akkaSolver.actors.OpenList.{AddState, GetNextStateToExplore}
 import akkaSolver.actors.NeighbourFinder.{InitializeWithState, FindNeighbours}
 import akkaSolver.actors.Solver.StateWithLowestFCost
 import akkaSolver.actors.Solver.Start
@@ -83,7 +83,6 @@ object Solver {
   }
 
   case class InitialState(state: State)
-  case class AddState(state: State)
   case class Start(input: String)
   case class StateWithLowestFCost(state: State)
   case class NeighboursFound(neighbourStates: List[State], parentState: State)

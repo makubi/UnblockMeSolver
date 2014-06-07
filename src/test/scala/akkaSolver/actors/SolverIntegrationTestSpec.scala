@@ -8,9 +8,9 @@ import akkaSolver.actors.Solver.{SolutionFound, Start}
 import scala.concurrent.duration._
 
 
-class SolverIntegrationTestKit
-  extends TestKit(ActorSystem("TestKitUsageSpec",
-    ConfigFactory.parseString(TestKitUsageSpec.config)))
+class SolverIntegrationTestSpec
+  extends TestKit(ActorSystem("SolverIntegrationTestKit",
+    ConfigFactory.parseString(SolverIntegrationTestSpec.config)))
   with DefaultTimeout with ImplicitSender
   with WordSpecLike with Matchers with BeforeAndAfterAll {
 
@@ -41,7 +41,7 @@ class SolverIntegrationTestKit
   }
 }
 
-object TestKitUsageSpec {
+object SolverIntegrationTestSpec {
   // Define your test specific configuration here
   val config = """
     akka {

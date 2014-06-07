@@ -2,9 +2,9 @@ package akkaSolver.actors
 
 import akka.actor.{ActorRef, Props, ActorLogging, Actor}
 import akka.event.LoggingReceive
-import akkaSolver.actors.Solver.{AddState, State}
+import akkaSolver.actors.Solver.State
 import akkaSolver.actors.ClosedList.AddToOpenListIfNotOnClosedList
-import akkaSolver.actors.OpenList.DoneAddingNeighbours
+import akkaSolver.actors.OpenList.{AddState, DoneAddingNeighbours}
 
 class ClosedList extends Actor with ActorLogging {
 

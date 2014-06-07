@@ -14,8 +14,8 @@ import akkaSolver.actors.InitialStateParser.ParseInitialStateRequest
 
 
 class SolverTestKit
-  extends TestKit(ActorSystem("TestKitUsageSpec",
-    ConfigFactory.parseString(TestKitUsageSpec.config)))
+  extends TestKit(ActorSystem("SolverTestKit",
+    ConfigFactory.parseString(SolverTestSpec.config)))
   with DefaultTimeout with ImplicitSender
   with WordSpecLike with Matchers with BeforeAndAfterAll {
 
@@ -49,3 +49,13 @@ class SolverTestKit
   }
 }
 
+
+object SolverTestSpec {
+  // Define your test specific configuration here
+  val config = """
+    akka {
+      loglevel = "DEBUG"
+      actor.debug.receive=on
+    }
+               """
+}

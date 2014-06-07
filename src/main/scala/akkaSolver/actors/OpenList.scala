@@ -24,7 +24,9 @@ object OpenList {
   def props() = Props(new OpenList)
 
   case class GetNextStateToExplore()
+  case class AddState(state: State)
   case class AddStates(states: List[State])
+
 
   case class DoneAddingNeighbours(solver: ActorRef)
 

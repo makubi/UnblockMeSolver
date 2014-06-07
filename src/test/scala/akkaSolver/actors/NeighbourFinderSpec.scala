@@ -10,8 +10,8 @@ import akkaSolver.actors.Solver.{InitialState, State}
 import scala.concurrent.duration._
 
 
-class NeighbourFinderTest extends TestKit(ActorSystem("TestKitUsageSpec",
-  ConfigFactory.parseString(TestKitUsageSpec.config)))
+class NeighbourFinderSpec extends TestKit(ActorSystem("TestKitUsageSpec",
+  ConfigFactory.parseString(NeighbourFinderSpec.config)))
 with DefaultTimeout with ImplicitSender
 with WordSpecLike with Matchers with BeforeAndAfterAll {
 
@@ -48,4 +48,15 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
       expectMsg(20 millis, expectedMessage)
     }
   }
+}
+
+object NeighbourFinderSpec {
+
+  val config = """
+    akka {
+      loglevel = "DEBUG"
+      actor.debug.receive=on
+    }
+               """
+
 }

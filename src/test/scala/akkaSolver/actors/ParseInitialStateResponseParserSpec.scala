@@ -8,8 +8,8 @@ import scala.concurrent.duration._
 import akkaSolver.actors.InitialStateParser.{ParseInitialStateError, ParseInitialStateResponse, ParseInitialStateRequest}
 import akkaSolver.helpers.{Orientation, UnblockMePiece}
 
-class ParseInitialStateResponseParserTest extends TestKit(ActorSystem("TestKitUsageSpec",
-  ConfigFactory.parseString(TestKitUsageSpec.config)))
+class ParseInitialStateResponseParserSpec extends TestKit(ActorSystem("TestKitUsageSpec",
+  ConfigFactory.parseString(ParseInitialStateResponseParserSpec.config)))
 with DefaultTimeout with ImplicitSender
 with WordSpecLike with Matchers with BeforeAndAfterAll {
 
@@ -48,4 +48,13 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
   }
 }
 
+object ParseInitialStateResponseParserSpec {
 
+  val config = """
+    akka {
+      loglevel = "DEBUG"
+      actor.debug.receive=on
+    }
+                              """
+
+}
