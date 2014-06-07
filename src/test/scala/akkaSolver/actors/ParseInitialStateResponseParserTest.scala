@@ -5,10 +5,10 @@ import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import scala.concurrent.duration._
-import akkaSolver.actors.InitialStateParser.{InitialStateParseError, InitialState, GetInitialState}
+import akkaSolver.actors.InitialStateParser.{ParseInitialStateError, ParseInitialStateResponse, ParseInitialStateRequest}
 import akkaSolver.helpers.{Orientation, UnblockMePiece}
 
-class InitialStateParserTest extends TestKit(ActorSystem("TestKitUsageSpec",
+class ParseInitialStateResponseParserTest extends TestKit(ActorSystem("TestKitUsageSpec",
   ConfigFactory.parseString(TestKitUsageSpec.config)))
 with DefaultTimeout with ImplicitSender
 with WordSpecLike with Matchers with BeforeAndAfterAll {
@@ -21,7 +21,7 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
     "parse a valid GetInitialState() message correctly" in {
 
       val initialStateParserActor = system.actorOf(InitialStateParser.props())
-      initialStateParserActor ! GetInitialState(initialState)
+      initialStateParserActor ! ParseInitialStateRequest(initialState)
 
       val expectedState: String = "11315652"
       val expectedPieces: Vector[UnblockMePiece] = Vector(
@@ -35,15 +35,17 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
         UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 5)
       )
 
-      expectMsg(50 millis, InitialState(expectedState, expectedPieces))
+      expectMsg(50 millis, ParseInitialStateResponse(expectedState, expectedPieces))
     }
 
     "repsond to a malformed GetInitialState() message correctly" in {
 
       val actorRef = system.actorOf(InitialStateParser.props())
-      actorRef ! GetInitialState("BOMMSFRIKADELLE")
+      actorRef ! ParseInitialStateRequest("BOMMSFRIKADELLE")
 
-      expectMsg(50 millis, InitialStateParseError("KAPOTT - failed to match List(BOMMSFRIKADELLE)"))
+      expectMsg(50 millis, ParseInitialStateError("KAPOTT - failed to match List(BOMMSFRIKADELLE)"))
     }
   }
 }
+
+

@@ -10,7 +10,7 @@ import akka.actor._
 import akka.testkit._
 import scala.concurrent.duration._
 import akkaSolver.actors.Solver.Start
-import akkaSolver.actors.InitialStateParser.GetInitialState
+import akkaSolver.actors.InitialStateParser.ParseInitialStateRequest
 
 
 class SolverTestKit
@@ -48,7 +48,7 @@ class SolverTestKit
         makeInitialStateParser)))
 
       actorRef ! Start(initialState)
-      initialStateParserProbe.expectMsg(10 millis, GetInitialState(initialState))
+      initialStateParserProbe.expectMsg(50 millis, ParseInitialStateRequest(initialState))
     }
   }
 }
@@ -57,7 +57,7 @@ object TestKitUsageSpec {
   // Define your test specific configuration here
   val config = """
     akka {
-      loglevel = "WARNING"
+      loglevel = "DEBUG"
     }
                """
 }
