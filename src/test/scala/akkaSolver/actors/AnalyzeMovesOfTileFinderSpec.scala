@@ -80,7 +80,7 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
       assert(withoutIndex.mkString === "134")
     }
 
-    "calculate the pieceMatrix correctly" in {
+    "calculate the pieceMatrix correctly for a horizontal piece" in {
 
       val state = Vector(1)
       val pieces = Vector(UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4))
@@ -88,8 +88,26 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
       val expectedArray = Array(
         Array(' ', ' ', ' ', ' ', ' ', ' '),
         Array(' ', ' ', ' ', ' ', ' ', ' '),
-        Array('0', '0', ' ', ' ', ' ', ' '),
+        Array('G', 'G', ' ', ' ', ' ', ' '),
         Array(' ', ' ', ' ', ' ', ' ', ' '),
+        Array(' ', ' ', ' ', ' ', ' ', ' '),
+        Array(' ', ' ', ' ', ' ', ' ', ' ')
+      )
+
+      assert(MoveAnalyzer.createArrayOfPiecesWithState(pieces, state) === expectedArray)
+
+    }
+
+    "calculate the pieceMatrix correctly for a vertical piece" in {
+
+      val state = Vector(5)
+      val pieces = Vector(UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 3))
+
+      val expectedArray = Array(
+        Array(' ', ' ', ' ', ' ', ' ', ' '),
+        Array(' ', ' ', 'N', ' ', ' ', ' '),
+        Array(' ', ' ', 'N', ' ', ' ', ' '),
+        Array(' ', ' ', 'N', ' ', ' ', ' '),
         Array(' ', ' ', ' ', ' ', ' ', ' '),
         Array(' ', ' ', ' ', ' ', ' ', ' ')
       )

@@ -1,13 +1,14 @@
 package akkaSolver.actors
 
 import akka.testkit.{ImplicitSender, DefaultTimeout, TestKit}
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{Matchers, WordSpecLike}
 import akkaSolver.helpers.{Orientation, UnblockMePiece}
-import akkaSolver.actors.NeighbourFinder.{InitializeWithState, FindNeighbours}
+import akkaSolver.actors.NeighbourFinder.{GetNewStatesOfPieceResponse, InitializeWithState, FindNeighbours}
 import akkaSolver.actors.Solver.{NeighboursFound, InitialState, State}
 import scala.concurrent.duration._
+import akkaSolver.actors.MoveAnalyzer.GetNewStatesOfPieceRequest
 
 
 class NeighbourFinderSpec extends TestKit(ActorSystem("TestKitUsageSpec",
@@ -61,6 +62,15 @@ with WordSpecLike with Matchers {
       neighbourFinderActor ! FindNeighbours(state)
 
       expectMsg(20 millis, NeighboursFound(List("4", "5", "1", "2").map(State(_, 1, 10)), state))
+    }
+
+    "handle this integration test correctly" in {
+      //[DEBUG] [06/09/2014 17:36:58.505] [SolverIntegrationTestKit-akka.actor.default-dispatcher-2] [akka://SolverIntegrationTestKit/user/NeighbourFinder/MoveAnalyzer] received handled message GetNewStatesOfPieceRequest(0,Vector(1, 1, 3, 1, 5, 6, 5, 2),Vector(UnblockMePiece(true,2,Horizontal,4), UnblockMePiece(false,3,Horizontal,6), UnblockMePiece(false,2,Vertical,1), UnblockMePiece(false,3,Horizontal,1), UnblockMePiece(false,3,Vertical,3), UnblockMePiece(false,3,Vertical,6), UnblockMePiece(false,2,Horizontal,3), UnblockMePiece(false,2,Vertical,5)))
+      val moveAnalyzerActor: ActorRef = system.actorOf(MoveAnalyzer.props())
+
+      val state: Vector[Int] = Vector(1, 1, 3, 1, 5, 6, 5, 2)
+      moveAnalyzerActor ! GetNewStatesOfPieceRequest(0, state, pieces)
+      expectMsg(10 millis, GetNewStatesOfPieceResponse(0, state, Vector.empty))
     }
   }
 }

@@ -65,21 +65,22 @@ object MoveAnalyzer {
     take ++ right
   }
 
-  private def fillPieceInMatrix(matrix: Array[Array[Char]], piece: UnblockMePiece, state: Int, pieceIndex: Int) {
+  private def fillPieceInMatrix(matrix: Array[Array[Char]], piece: UnblockMePiece, state: Int) {
     0.until(piece.length).foreach { offset => {
-      val x = if (piece.orientation == Orientation.Horizontal) state - 1 + offset else piece.positionOnTheFixedAxis
-      val y = if (piece.orientation == Orientation.Vertical) state - 1 + offset else piece.positionOnTheFixedAxis
+      val x = if (piece.orientation == Orientation.Horizontal) state + offset else piece.positionOnTheFixedAxis
+      val y = if (piece.orientation == Orientation.Vertical) state - offset else piece.positionOnTheFixedAxis
 
-      matrix(6 - y)(x) = pieceIndex.toString.head
+      val yLocInMatrix = 6 - y
+      matrix(yLocInMatrix)(x - 1) = if(piece.isGoalPiece) 'G' else 'N'
     }}
   }
 
   private def canPieceTakeThisState(matrixOfOtherPieces: Array[Array[Char]], piece: UnblockMePiece, state: Int): Boolean = {
     val isBlocked: Boolean = 0.until(piece.length).exists(offset => {
-      val x = if (piece.orientation == Orientation.Horizontal) state - 1 + offset else piece.positionOnTheFixedAxis
-      val y = if (piece.orientation == Orientation.Vertical) state - 1 + offset else piece.positionOnTheFixedAxis
+      val x = if (piece.orientation == Orientation.Horizontal) state + offset else piece.positionOnTheFixedAxis
+      val y = if (piece.orientation == Orientation.Vertical) state + offset else piece.positionOnTheFixedAxis
 
-      matrixOfOtherPieces(6 - y - 1)(x) != ' '
+      matrixOfOtherPieces(6 - y)(x-1) != ' '
     })
 
     !isBlocked
@@ -93,7 +94,7 @@ object MoveAnalyzer {
       val piece = pieces(i)
       val stateOfPiece = state(i)
 
-      fillPieceInMatrix(matrix, piece, stateOfPiece, pieceIndex = i)
+      fillPieceInMatrix(matrix, piece, stateOfPiece)
 
     })
 
