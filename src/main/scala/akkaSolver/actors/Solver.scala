@@ -70,7 +70,7 @@ class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRef
 object Solver {
 
   def props(openListProps: Props, closedListProps: Props, neighbourFinderProps: Props, initialStateParserProps: Props): Props = {
-    Props(new Solver(_.actorOf(openListProps), _.actorOf(closedListProps), _.actorOf(neighbourFinderProps), _.actorOf(initialStateParserProps)))
+    Props(new Solver(_.actorOf(openListProps, "OpenList"), _.actorOf(closedListProps, "ClosedList"), _.actorOf(neighbourFinderProps, "NeighbourFinder"), _.actorOf(initialStateParserProps, "InitialStateParser")))
   }
 
   case class State(state: String, g: Int, h: Int) {
