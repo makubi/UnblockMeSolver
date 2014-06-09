@@ -3,7 +3,7 @@ package akkaSolver.helpers
 import akkaSolver.helpers.Orientation.Orientation
 
 
-case class UnblockMePiece(isGoalPiece: Boolean, length: Int, orientation: Orientation, positionOnTheFixedAxis: Int) {
+case class UnblockMePiece(isGoalPiece: Boolean, length: Int, orientation: Orientation, positionOnTheFixedAxis: Int, pieceIndex: Int = 0) {
 
   val offsetFn: (Int) => Location = offset => {
     if (orientation == Orientation.Vertical) Location(0, length - offset - 1)

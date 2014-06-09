@@ -71,7 +71,7 @@ object MoveAnalyzer {
       val y = if (piece.orientation == Orientation.Vertical) state - offset else piece.positionOnTheFixedAxis
 
       val yLocInMatrix = 6 - y
-      matrix(yLocInMatrix)(x - 1) = if(piece.isGoalPiece) 'G' else 'N'
+      matrix(yLocInMatrix)(x - 1) = if(piece.isGoalPiece) 'G' else piece.pieceIndex.toString.head
     }}
   }
 

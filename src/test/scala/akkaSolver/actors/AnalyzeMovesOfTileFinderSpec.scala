@@ -32,7 +32,7 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
 
       val analyzeMovesOfTileActor: ActorRef = system.actorOf(MoveAnalyzer.props())
       val state = Vector(1)
-      val pieces = Vector(UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4))
+      val pieces = Vector(UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4, pieceIndex = 0))
 
       analyzeMovesOfTileActor ! GetNewStatesOfPieceRequest(0, state, pieces)
 
@@ -43,7 +43,7 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
 
       val analyzeMovesOfTileActor: ActorRef = system.actorOf(MoveAnalyzer.props())
       val state = Vector(5)
-      val pieces = Vector(UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4))
+      val pieces = Vector(UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4, pieceIndex = 0))
 
       analyzeMovesOfTileActor ! GetNewStatesOfPieceRequest(0, state, pieces)
 
@@ -54,7 +54,7 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
 
       val analyzeMovesOfTileActor: ActorRef = system.actorOf(MoveAnalyzer.props())
       val state = Vector(1)
-      val pieces = Vector(UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 4))
+      val pieces = Vector(UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 4, pieceIndex = 0))
 
       analyzeMovesOfTileActor ! GetNewStatesOfPieceRequest(0, state, pieces)
 
@@ -65,7 +65,7 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
 
       val analyzeMovesOfTileActor: ActorRef = system.actorOf(MoveAnalyzer.props())
       val state = Vector(5)
-      val pieces = Vector(UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 4))
+      val pieces = Vector(UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 4, pieceIndex = 0))
 
       analyzeMovesOfTileActor ! GetNewStatesOfPieceRequest(0, state, pieces)
 
@@ -83,7 +83,7 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
     "calculate the pieceMatrix correctly for a horizontal piece" in {
 
       val state = Vector(1)
-      val pieces = Vector(UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4))
+      val pieces = Vector(UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4, pieceIndex = 0))
 
       val expectedArray = Array(
         Array(' ', ' ', ' ', ' ', ' ', ' '),
@@ -101,15 +101,42 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
     "calculate the pieceMatrix correctly for a vertical piece" in {
 
       val state = Vector(5)
-      val pieces = Vector(UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 3))
+      val pieces = Vector(UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 3, pieceIndex = 0))
 
       val expectedArray = Array(
         Array(' ', ' ', ' ', ' ', ' ', ' '),
-        Array(' ', ' ', 'N', ' ', ' ', ' '),
-        Array(' ', ' ', 'N', ' ', ' ', ' '),
-        Array(' ', ' ', 'N', ' ', ' ', ' '),
+        Array(' ', ' ', '0', ' ', ' ', ' '),
+        Array(' ', ' ', '0', ' ', ' ', ' '),
+        Array(' ', ' ', '0', ' ', ' ', ' '),
         Array(' ', ' ', ' ', ' ', ' ', ' '),
         Array(' ', ' ', ' ', ' ', ' ', ' ')
+      )
+
+      assert(MoveAnalyzer.createArrayOfPiecesWithState(pieces, state) === expectedArray)
+
+    }
+
+    "calculate the pieceMatrix correctly for a the sample grid" in {
+
+      val state = Vector(1, 1, 3, 1, 5, 6, 5, 2)
+      val pieces: Vector[UnblockMePiece] = Vector(
+        UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4, pieceIndex = 0),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 6, pieceIndex = 1),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 1, pieceIndex = 2),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 1, pieceIndex = 3),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 3, pieceIndex = 4),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 6, pieceIndex = 5),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 3, pieceIndex = 6),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 5, pieceIndex = 7)
+      )
+
+      val expectedArray = Array(
+        Array('1', '1', '1', ' ', ' ', '5'),
+        Array(' ', ' ', '4', ' ', ' ', '5'),
+        Array('G', 'G', '4', ' ', ' ', '5'),
+        Array('2', ' ', '4', ' ', '6', '6'),
+        Array('2', ' ', ' ', ' ', '7', ' '),
+        Array('3', '3', '3', ' ', '7', ' ')
       )
 
       assert(MoveAnalyzer.createArrayOfPiecesWithState(pieces, state) === expectedArray)

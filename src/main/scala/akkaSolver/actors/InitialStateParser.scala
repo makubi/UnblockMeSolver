@@ -19,8 +19,8 @@ class InitialStateParser extends Actor with ActorLogging {
   }
 
   def parse(initialState: String): ParseInitialStateResponse = {
-    val split: Vector[String] = initialState.split("[|]").toVector
-    val tilesWithLocations = split.map(tile => UnblockMePieceWithLocation(tile))
+    val split: Vector[(String, Int)] = initialState.split("[|]").toVector.zipWithIndex
+    val tilesWithLocations = split.map{ case (tile, index) => UnblockMePieceWithLocation(tile, index) }
 
     val extractedState = tilesWithLocations
       .map{ case (_, locationOnTheMovableAxis) => locationOnTheMovableAxis.toString }
