@@ -65,12 +65,26 @@ with WordSpecLike with Matchers {
     }
 
     "handle this integration test correctly" in {
-      //[DEBUG] [06/09/2014 17:36:58.505] [SolverIntegrationTestKit-akka.actor.default-dispatcher-2] [akka://SolverIntegrationTestKit/user/NeighbourFinder/MoveAnalyzer] received handled message GetNewStatesOfPieceRequest(0,Vector(1, 1, 3, 1, 5, 6, 5, 2),Vector(UnblockMePiece(true,2,Horizontal,4), UnblockMePiece(false,3,Horizontal,6), UnblockMePiece(false,2,Vertical,1), UnblockMePiece(false,3,Horizontal,1), UnblockMePiece(false,3,Vertical,3), UnblockMePiece(false,3,Vertical,6), UnblockMePiece(false,2,Horizontal,3), UnblockMePiece(false,2,Vertical,5)))
-      val moveAnalyzerActor: ActorRef = system.actorOf(MoveAnalyzer.props())
+      val neighbourFinderActor = system.actorOf(NeighbourFinder.props())
 
-      val state: Vector[Int] = Vector(1, 1, 3, 1, 5, 6, 5, 2)
-      moveAnalyzerActor ! GetNewStatesOfPieceRequest(0, state, pieces)
-      expectMsg(10 millis, GetNewStatesOfPieceResponse(0, state, Vector.empty))
+      neighbourFinderActor ! InitializeWithState(stateString, pieces)
+
+      //Ignore InitialState Message
+      expectMsgType[InitialState](20 millis)
+
+      neighbourFinderActor ! FindNeighbours(State(stateString, 0, 10))
+
+      val expectedNeighbourStates = List(
+        "11314652",
+        "11315642",
+        "11325652",
+        "12315652",
+        "13315652"
+      )
+
+      val neighboursFound: NeighboursFound = expectMsgType[NeighboursFound](50 millis)
+
+      assert(neighboursFound.neighbourStates.map(_.state).sorted === expectedNeighbourStates.sorted)
     }
   }
 }

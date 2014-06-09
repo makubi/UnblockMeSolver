@@ -7,7 +7,8 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import akkaSolver.helpers.{Orientation, UnblockMePiece}
 import akkaSolver.actors.MoveAnalyzer.GetNewStatesOfPieceRequest
 import scala.concurrent.duration._
-import akkaSolver.actors.NeighbourFinder.GetNewStatesOfPieceResponse
+import akkaSolver.actors.NeighbourFinder.{FindNeighbours, GetNewStatesOfPieceResponse}
+import akkaSolver.actors.Solver.{NeighboursFound, State, InitialState}
 
 
 object AnalyzeMovesOfTileFinderSpec {
@@ -26,7 +27,7 @@ class AnalyzeMovesOfTileFinderSpec extends TestKit(ActorSystem("TestKitUsageSpec
 with DefaultTimeout with ImplicitSender
 with WordSpecLike with Matchers with BeforeAndAfterAll {
 
-  "The AnalyzeMovesOfTileActor" should {
+  "The MoveAnalyzer" should {
 
     "find all moves to the right correctly" in {
 
@@ -47,7 +48,7 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
 
       analyzeMovesOfTileActor ! GetNewStatesOfPieceRequest(0, state, pieces)
 
-      expectMsg(15 millis, GetNewStatesOfPieceResponse(0, state, Vector(1,2,3,4)))
+      expectMsg(15 millis, GetNewStatesOfPieceResponse(0, state, Vector(4,3,2,1)))
     }
 
     "find all upward moves correctly" in {
@@ -58,20 +59,40 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
 
       analyzeMovesOfTileActor ! GetNewStatesOfPieceRequest(0, state, pieces)
 
-      expectMsg(15 millis, GetNewStatesOfPieceResponse(0, state, Vector(2,3,4,5)))
+      expectMsg(15 millis, GetNewStatesOfPieceResponse(0, state, Vector(2,3,4,5,6)))
     }
 
     "find all downward moves correctly" in {
 
       val analyzeMovesOfTileActor: ActorRef = system.actorOf(MoveAnalyzer.props())
-      val state = Vector(5)
+      val state = Vector(6)
       val pieces = Vector(UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 4, pieceIndex = 0))
 
       analyzeMovesOfTileActor ! GetNewStatesOfPieceRequest(0, state, pieces)
 
-      expectMsg(15 millis, GetNewStatesOfPieceResponse(0, state, Vector(1,2,3,4)))
+      expectMsg(15 millis, GetNewStatesOfPieceResponse(0, state, Vector(5,4,3,2)))
     }
 
+    "handle this integration test correctly" in {
+      val moveAnalyzer = system.actorOf(MoveAnalyzer.props())
+
+      val stateString: String = "11315652"
+      val state: Vector[Int] = stateString.map(_.asDigit).toVector
+
+      val pieces: Vector[UnblockMePiece] = Vector(
+        UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4, pieceIndex = 0),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 6, pieceIndex = 1),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 1, pieceIndex = 2),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 1, pieceIndex = 3),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 3, pieceIndex = 4),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 6, pieceIndex = 5),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 3, pieceIndex = 6),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 5, pieceIndex = 7)
+      )
+      moveAnalyzer ! GetNewStatesOfPieceRequest(4, state, pieces)
+
+      expectMsg(15 millis, GetNewStatesOfPieceResponse(4, state, Vector(4)))
+    }
   }
 
   "The AnalyzeMovesOfTile Helper" should {

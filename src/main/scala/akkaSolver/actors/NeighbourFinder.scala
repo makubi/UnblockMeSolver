@@ -25,15 +25,15 @@ class NeighbourFinder extends Actor with ActorLogging {
 
     case InitializeWithState(stateString, pieces) =>
 
-      context.become(initialized(stateString, pieces))
+      context.become(initialized(pieces))
 
       sender() ! InitialState(calcStateByStateString(stateString, pieces, currentMovementCosts = 0))
   }
 
-  def initialized(stateString: String, pieces: Vector[UnblockMePiece]) = LoggingReceive {
+  def initialized(pieces: Vector[UnblockMePiece]) = LoggingReceive {
 
     case msg@FindNeighbours(parentState: State) => {
-      val stateArray: Array[Int] = stateString.toCharArray.map(c => c.toInt)
+      val stateArray: Array[Int] = parentState.state.toCharArray.map(c => c.asDigit)
 
       val answerReceiver = sender()
 
@@ -45,8 +45,8 @@ class NeighbourFinder extends Actor with ActorLogging {
         override def receive: Actor.Receive = LoggingReceive {
           case FindNeighbours(parentState: State) =>
             val stateArray: Vector[Int] = parentState.state.toCharArray.map(_.asDigit).toVector
-            for (i <- 0.until(stateArray.size)) {
-              moveAnalyzerActor ! GetNewStatesOfPieceRequest(i, stateArray, pieces)
+            for (piece <- pieces) {
+              moveAnalyzerActor ! GetNewStatesOfPieceRequest(piece.pieceIndex, stateArray, pieces)
             }
 
           case GetNewStatesOfPieceResponse(pieceIndex, _, newStatesOfPiece) => {
