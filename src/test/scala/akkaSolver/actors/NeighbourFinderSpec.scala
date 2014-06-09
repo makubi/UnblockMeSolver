@@ -52,7 +52,7 @@ with WordSpecLike with Matchers {
     "find all moves of one (and only one) vertical piece" in {
       val neighbourFinderActor = system.actorOf(NeighbourFinder.props())
 
-      val piece: UnblockMePiece = UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4, pieceIndex = 0)
+      val piece: UnblockMePiece = UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 4, pieceIndex = 0)
       neighbourFinderActor ! InitializeWithState("3", Vector(piece))
 
       //Ignore InitialState Message
@@ -61,7 +61,8 @@ with WordSpecLike with Matchers {
       val state = State("3", 0, 2)
       neighbourFinderActor ! FindNeighbours(state)
 
-      expectMsg(20 millis, NeighboursFound(List("4", "5", "1", "2").map(State(_, 1, 10)), state))
+      val expectedStates: List[State] = List(2, 4, 5, 6).map(i => State(i.toString, g = 1, h = 10))
+      expectMsg(20 millis, NeighboursFound(expectedStates, state))
     }
 
     "handle this integration test correctly" in {
