@@ -58,7 +58,7 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
                     |4 4 h 2
                     |5 0 v 3""".stripMargin
 
-      val expectedState: String = "22123441"
+      val expectedState: String = "22123551"
       val expectedPieces: Vector[UnblockMePiece] = Vector(
         UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 3, pieceIndex = 0),
         UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 1, pieceIndex = 1),

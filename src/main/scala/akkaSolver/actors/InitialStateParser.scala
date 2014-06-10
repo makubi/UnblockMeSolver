@@ -52,7 +52,27 @@ Jam-1
 5 0 v 3
      */
 
-    ???
+    case class ParseResult(name: String, puzzleSize: Int, pieces: List[String])
+    val parseResult: ParseResult = initialState.split("\n").toList match {
+      case name :: puzzleSize :: tiles => ParseResult(name, puzzleSize.toInt, tiles)
+    }
+
+    case class ParsedResult(piece: UnblockMePiece, stateOfPiece: Int)
+
+    val parsedResult: List[ParsedResult] = parseResult.pieces.zipWithIndex.map {
+      case (piece: String, index: Int) =>
+        val pieceDetails = piece.split(" ")
+        val x = pieceDetails(0).toInt + 1
+        val y = pieceDetails(1).toInt + 1
+        val orientation = if (pieceDetails(2).equalsIgnoreCase("v")) Orientation.Vertical else Orientation.Horizontal
+        val length = pieceDetails(3).toInt
+        val isGoalPiece = index == 0
+        val positionOnFixedAxis = if (orientation == Orientation.Vertical) x else y
+        val positionOnMovableAxis = if (orientation == Orientation.Vertical) y else x
+        ParsedResult(UnblockMePiece(isGoalPiece, length, orientation, positionOnFixedAxis, index), positionOnMovableAxis)
+    }
+
+    ParseInitialStateResponse(parsedResult.map(r => r.stateOfPiece).mkString, parsedResult.map(r => r.piece).toVector)
   }
 
   def parseAkkaSolverStateString(initialState: String): ParseInitialStateResponse = {
