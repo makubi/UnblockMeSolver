@@ -2,16 +2,19 @@ package akkaSolver.actors
 
 import akka.actor.{ActorRef, Props, ActorLogging, Actor}
 import akka.event.LoggingReceive
-import akkaSolver.actors.Solver.{StateWithLowestFCost, StateOrderingForPriorityQueue, State}
+import akkaSolver.actors.Solver._
 import akkaSolver.actors.OpenList._
 import scala.collection.mutable
-import akkaSolver.actors.Solver.State
+import scala.annotation.tailrec
 import akkaSolver.actors.OpenList.GetStateWithLowestFCost
+import scala.Some
+import akkaSolver.actors.OpenList.SolutionFoundProvidePathRequest
+import akkaSolver.actors.OpenList.DoneAddingNeighbours
+import akkaSolver.actors.Solver.State
+import akkaSolver.actors.OpenList.GetParentOfStateResponse
 import akkaSolver.actors.OpenList.GetParentOfStateRequest
 import akkaSolver.actors.Solver.StateWithLowestFCost
 import akkaSolver.actors.OpenList.AddStateToOpenList
-import scala.Some
-import akkaSolver.actors.OpenList.DoneAddingNeighbours
 
 class OpenList() extends Actor with ActorLogging {
 
@@ -49,15 +52,21 @@ class OpenList() extends Actor with ActorLogging {
         childToParentRelation(newState.state) = Some(parentState.state)
       }
 
+
     case GetParentOfStateRequest(stateString) =>
       val parentOption = childToParentRelation.getOrElse(stateString, None).map(x => stateDictionary(x))
       sender() ! GetParentOfStateResponse(parentOption, stateDictionary(stateString))
 
 
+    case SolutionFoundProvidePathRequest(initialStateString, finalState) =>
+      val path: List[String] = calcSolutionPath(initialStateString, finalState.state, childToParentRelation.toMap)
+      sender ! SolutionFoundProvidePathResponse(initialStateString, path, Nil)
+
 
     case GetStateWithLowestFCost =>
       val stateWithLowestFCost: StateWithLowestFCost = Solver.StateWithLowestFCost(getStateWithLowestFCost)
       sender() ! stateWithLowestFCost
+
 
     case DoneAddingNeighbours(solver) => solver ! Solver.StateWithLowestFCost(getStateWithLowestFCost)
   }
@@ -76,6 +85,24 @@ object OpenList {
 
   def props() = Props(new OpenList)
 
+  def calcSolutionPath(initialState: String, finalState: String, childToParentRelation: Map[String, Option[String]]): List[String] = {
+
+    @tailrec
+    def helper(state: String, path: List[String]): List[String] = {
+      if (state == initialState) state :: path
+      else {
+        val parentOpt = childToParentRelation(state)
+        parentOpt match {
+          case None => path
+          case Some(parent) => helper(parent, state :: path)
+        }
+      }
+    }
+
+    helper(finalState, Nil)
+  }
+
+
   case class GetStateWithLowestFCost()
 
   case class AddStateToOpenList(state: State, parentState: State)
@@ -87,6 +114,8 @@ object OpenList {
   case class GetParentOfStateRequest(stateString: String)
 
   case class GetParentOfStateResponse(parent: Option[State], state: State)
+
+  case class SolutionFoundProvidePathRequest(initialStateString: String, finalState: State)
 
 }
 

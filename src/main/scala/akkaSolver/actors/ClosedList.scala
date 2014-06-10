@@ -40,23 +40,5 @@ object ClosedList {
   case class AddStateToClosedList(state: State)
 
   case class AddToOpenListIfNotOnClosedList(parentState: State, states: List[State], openList: ActorRef)
-
-  case class SolutionFoundProvidePathRequest(initialState: String, finalState: State)
-
-  def calcSolutionPath(finalState: State, childToParentRelation: Map[String, Option[String]]) = {
-
-    @tailrec
-    def helper(state: String, path: List[String]): List[String] = {
-      val parentOpt = childToParentRelation(state)
-      parentOpt match {
-        case None => path
-        case Some(parent) => helper(parent, state :: path )
-      }
-    }
-
-    helper(finalState.state, Nil)
-  }
-
-
 }
 

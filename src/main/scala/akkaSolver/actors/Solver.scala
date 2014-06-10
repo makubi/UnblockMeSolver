@@ -3,12 +3,12 @@ package akkaSolver.actors
 import akka.actor._
 import akka.event.LoggingReceive
 import akkaSolver.actors.Solver._
-import akkaSolver.actors.OpenList.{AddStateToOpenList, GetStateWithLowestFCost}
+import akkaSolver.actors.OpenList.SolutionFoundProvidePathRequest
 import akkaSolver.actors.NeighbourFinder.{InitializeWithState, FindNeighbours}
 import akkaSolver.actors.Solver.StateWithLowestFCost
 import akkaSolver.actors.Solver.Start
 import akkaSolver.actors.InitialStateParser.{ParseInitialStateResponse, ParseInitialStateRequest}
-import akkaSolver.actors.ClosedList.{AddStateToClosedList, SolutionFoundProvidePathRequest, AddToOpenListIfNotOnClosedList}
+import akkaSolver.actors.ClosedList.{AddStateToClosedList, AddToOpenListIfNotOnClosedList}
 import akkaSolver.helpers.{Move, UnblockMePiece}
 
 class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRefFactory => ActorRef, makeNeighbourFinder: ActorRefFactory => ActorRef, makeInitialStateParser: ActorRefFactory => ActorRef) extends Actor with ActorLogging {
@@ -35,6 +35,7 @@ class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRef
   def solving(openList: ActorRef, closedList: ActorRef, neighbourFinder: ActorRef, initialStateParser: ActorRef): Receive = LoggingReceive {
 
     case Start(state) => log.info(s"Dude, I'm busy. Cannot process $state right now.") //do nothing - i'm busy
+
     case parseInitialStateResponse@ParseInitialStateResponse(stateString, newPieces) => {
 
       this.pieces = newPieces
@@ -51,24 +52,28 @@ class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRef
       }
     }
 
+
     case InitialState(state) =>
       //No need to add the first state to the openList and get it off again
       self ! StateWithLowestFCost(state)
+
 
     case StateWithLowestFCost(state) => {
       closedList ! AddStateToClosedList(state)
       neighbourFinder ! FindNeighbours(state)
     }
 
+
     case NeighboursFound(neighbourStates, parent) =>
 
       val solutionOption = neighbourStates.find(state => isSolved(state))
 
+      closedList ! AddToOpenListIfNotOnClosedList(parent, neighbourStates, openList)
+
       if (solutionOption.isDefined) {
-        closedList ! SolutionFoundProvidePathRequest(initialState, solutionOption.get)
+        openList ! SolutionFoundProvidePathRequest(initialState, solutionOption.get)
       }
 
-      closedList ! AddToOpenListIfNotOnClosedList(parent, neighbourStates, openList)
 
     case SolutionFoundProvidePathResponse(initialStateString, path, moves) => {
       solutionRequester ! SolutionFound(initialStateString, path, moves)

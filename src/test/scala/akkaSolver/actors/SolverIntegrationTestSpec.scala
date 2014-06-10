@@ -37,7 +37,7 @@ class SolverIntegrationTestSpec
       expectMsgType[SolutionFound](10 seconds)
     }
 
-    "find the solution for puzzle #22 (Beginner but not _that_ easy)" in {
+    "find the solution for puzzle #22 (Beginner but not _that_ easy)" ignore {
 
       val solverActor = system.actorOf(Props(new Solver(
         makeOpenlist,
