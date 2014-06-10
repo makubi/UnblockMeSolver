@@ -63,13 +63,13 @@ Jam-1
       case (piece: String, index: Int) =>
         val pieceDetails = piece.split(" ")
         val x = pieceDetails(0).toInt + 1
-        val y = pieceDetails(1).toInt + 1
+        val y = 6 - pieceDetails(1).toInt
         val orientation = if (pieceDetails(2).equalsIgnoreCase("v")) Orientation.Vertical else Orientation.Horizontal
         val length = pieceDetails(3).toInt
         val isGoalPiece = index == 0
         val positionOnFixedAxis = if (orientation == Orientation.Vertical) x else y
         val positionOnMovableAxis = if (orientation == Orientation.Vertical) y else x
-        ParsedResult(UnblockMePiece(isGoalPiece, length, orientation, positionOnFixedAxis, index), positionOnMovableAxis)
+        ParsedResult(UnblockMePiece(isGoalPiece = isGoalPiece, length = length, orientation = orientation, positionOnTheFixedAxis = positionOnFixedAxis, pieceIndex = index), positionOnMovableAxis)
     }
 
     ParseInitialStateResponse(parsedResult.map(r => r.stateOfPiece).mkString, parsedResult.map(r => r.piece).toVector)

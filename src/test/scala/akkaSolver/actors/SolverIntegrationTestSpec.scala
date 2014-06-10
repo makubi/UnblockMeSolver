@@ -4,11 +4,11 @@ import akka.testkit.{ImplicitSender, DefaultTimeout, TestKit}
 import akka.actor._
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
-import akkaSolver.actors.Solver.{SolutionFound, Start}
+import akkaSolver.actors.Solver.Start
 import scala.concurrent.duration._
-import java.util.logging.Logger
 import akkaSolver.actors.Solver.SolutionFound
 import akkaSolver.actors.Solver.Start
+import scala.io.Source
 
 
 class SolverIntegrationTestSpec
@@ -59,6 +59,26 @@ class SolverIntegrationTestSpec
       val solution: SolutionFound = expectMsgType[SolutionFound](10 seconds)
       println(solution)
     }
+
+    "find the solutions for all original RushHour Puzzles" in {
+
+      val source = Source.fromURL(getClass.getResource("/rushHourJams.txt")).mkString
+      val jamStrings: Array[String] = source.split("[.]").filter(_.trim != "").map(_.trim)
+
+      jamStrings foreach { jam => {
+        solverActor ! Start(jam)
+
+        val title = jam.split("\n").head
+
+        val found: SolutionFound = expectMsgType[SolutionFound](10 seconds)
+
+        println(
+          s"$title: ${found.path.length - 1} moves")
+      }
+      }
+
+
+    }
   }
 }
 
@@ -66,7 +86,7 @@ object SolverIntegrationTestSpec {
   // Define your test specific configuration here
   val config = """
     akka {
-      loglevel = "INFO"
+      loglevel = "ERROR"
       actor.debug.receive=off
     }
                """
