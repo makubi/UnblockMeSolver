@@ -8,12 +8,16 @@ import akkaSolver.actors.NeighbourFinder.{InitializeWithState, FindNeighbours}
 import akkaSolver.actors.Solver.StateWithLowestFCost
 import akkaSolver.actors.Solver.Start
 import akkaSolver.actors.InitialStateParser.{ParseInitialStateResponse, ParseInitialStateRequest}
-import akkaSolver.actors.ClosedList.AddToOpenListIfNotOnClosedList
+import akkaSolver.actors.ClosedList.{SolutionFoundProvidePathRequest, AddToOpenListIfNotOnClosedList}
+import akkaSolver.helpers.{Move, UnblockMePiece}
 
 class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRefFactory => ActorRef, makeNeighbourFinder: ActorRefFactory => ActorRef, makeInitialStateParser: ActorRefFactory => ActorRef) extends Actor with ActorLogging {
   override def receive: Receive = idle
 
   private var solutionRequester: ActorRef = _
+  private var pieces: Vector[UnblockMePiece] = _
+  private var initialState: String = _
+  private var goalPiece: UnblockMePiece = _
 
   def idle: Receive = LoggingReceive {
 
@@ -30,13 +34,21 @@ class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRef
 
   def solving(openList: ActorRef, closedList: ActorRef, neighbourFinder: ActorRef, initialStateParser: ActorRef): Receive = LoggingReceive {
 
-    case Start(initialState) => log.info(s"Dude, I'm busy. Cannot process $initialState right now.") //do nothing - i'm busy
-    case parseInitialStateResponse @ ParseInitialStateResponse(stateString, pieces) => {
+    case Start(state) => log.info(s"Dude, I'm busy. Cannot process $state right now.") //do nothing - i'm busy
+    case parseInitialStateResponse@ParseInitialStateResponse(stateString, newPieces) => {
 
-      neighbourFinder ! InitializeWithState(stateString, pieces)
-      
-      //Move found state to openlist
-      //openList ! AddState(stateString)
+      this.pieces = newPieces
+      this.initialState = stateString
+      val goalPieceOpt: Option[UnblockMePiece] = pieces.find(_.isGoalPiece)
+      if (goalPieceOpt.isEmpty) {
+        solutionRequester ! NoGoalPieceGiven
+        context.children.foreach(c => c ! PoisonPill)
+        context.unbecome()
+      } else {
+        this.goalPiece = goalPieceOpt.get
+
+        neighbourFinder ! InitializeWithState(stateString, pieces)
+      }
     }
 
     case InitialState(state) =>
@@ -53,18 +65,20 @@ class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRef
 
       val solutionOption = neighbourStates.find(state => isSolved(state))
 
-      if(solutionOption.isDefined) {
-        solutionRequester ! SolutionFound(solutionOption.get)
-        context.children.foreach(c => c ! PoisonPill)
-        context.unbecome()
+      if (solutionOption.isDefined) {
+        closedList ! SolutionFoundProvidePathRequest(initialState, solutionOption.get)
       }
 
-      closedList ! AddToOpenListIfNotOnClosedList(neighbourStates, openList)
+      closedList ! AddToOpenListIfNotOnClosedList(parent, neighbourStates, openList)
 
-      openList ! GetStateWithLowestFCost
+    case SolutionFoundProvidePathResponse(initialStateString, path, moves) => {
+      solutionRequester ! SolutionFound(initialStateString, path, moves)
+      context.children.foreach(c => c ! PoisonPill)
+      context.unbecome()
+    }
   }
 
-  def isSolved(state: State): Boolean = false
+  def isSolved(state: State): Boolean = state.state(goalPiece.pieceIndex) == '5'
 }
 
 object Solver {
@@ -78,13 +92,21 @@ object Solver {
   }
 
   object StateOrderingForPriorityQueue extends Ordering[State] {
-    def compare(a:State, b:State) = -(a.f compare b.f)
+    def compare(a: State, b: State) = -(a.f compare b.f)
   }
 
   case class InitialState(state: State)
+
   case class Start(input: String)
+
   case class StateWithLowestFCost(state: State)
+
   case class NeighboursFound(neighbourStates: List[State], parentState: State)
-  case class SolutionFound(state: State)
+
+  case class SolutionFound(initialState: String, path: List[String], moves: List[Move])
+
+  case class SolutionFoundProvidePathResponse(initialState: String, path: List[String], moves: List[Move])
+
+  case object NoGoalPieceGiven
 
 }

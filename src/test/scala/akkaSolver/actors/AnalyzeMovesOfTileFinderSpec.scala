@@ -7,8 +7,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import akkaSolver.helpers.{Orientation, UnblockMePiece}
 import akkaSolver.actors.MoveAnalyzer.GetNewStatesOfPieceRequest
 import scala.concurrent.duration._
-import akkaSolver.actors.NeighbourFinder.{FindNeighbours, GetNewStatesOfPieceResponse}
-import akkaSolver.actors.Solver.{NeighboursFound, State, InitialState}
+import akkaSolver.actors.NeighbourFinder.GetNewStatesOfPieceResponse
 
 
 object AnalyzeMovesOfTileFinderSpec {

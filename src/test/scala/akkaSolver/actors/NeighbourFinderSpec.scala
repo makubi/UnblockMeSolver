@@ -1,14 +1,13 @@
 package akkaSolver.actors
 
 import akka.testkit.{ImplicitSender, DefaultTimeout, TestKit}
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{Matchers, WordSpecLike}
 import akkaSolver.helpers.{Orientation, UnblockMePiece}
-import akkaSolver.actors.NeighbourFinder.{GetNewStatesOfPieceResponse, InitializeWithState, FindNeighbours}
+import akkaSolver.actors.NeighbourFinder.{InitializeWithState, FindNeighbours}
 import akkaSolver.actors.Solver.{NeighboursFound, InitialState, State}
 import scala.concurrent.duration._
-import akkaSolver.actors.MoveAnalyzer.GetNewStatesOfPieceRequest
 
 
 class NeighbourFinderSpec extends TestKit(ActorSystem("TestKitUsageSpec",

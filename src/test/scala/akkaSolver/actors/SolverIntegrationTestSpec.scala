@@ -18,15 +18,11 @@ class SolverIntegrationTestSpec
 
   "An IntegrationTest Solver" should {
     "do something useful" in {
-      val openListRef = system.actorOf(OpenList.props(), "OpenList")
-      val closedListRef = system.actorOf(ClosedList.props(), "ClosedList")
-      val neighbourFinderRef = system.actorOf(NeighbourFinder.props(), "NeighbourFinder")
-      val initialStateParserRef = system.actorOf(InitialStateParser.props(), "InitialStateParser")
 
-      val makeOpenlist: (ActorRefFactory) => ActorRef = (_: ActorRefFactory) => openListRef
-      val makeClosedList: (ActorRefFactory) => ActorRef = (_: ActorRefFactory) => closedListRef
-      val makeNeighbour: (ActorRefFactory) => ActorRef = (_: ActorRefFactory) => neighbourFinderRef
-      val makeInitialStateParser: (ActorRefFactory) => ActorRef = (_: ActorRefFactory) => initialStateParserRef
+      val makeOpenlist: (ActorRefFactory) => ActorRef = _.actorOf(OpenList.props(), "OpenList")
+      val makeClosedList: (ActorRefFactory) => ActorRef = _.actorOf(ClosedList.props(), "ClosedList")
+      val makeNeighbour: (ActorRefFactory) => ActorRef = _.actorOf(NeighbourFinder.props(), "NeighbourFinder")
+      val makeInitialStateParser: (ActorRefFactory) => ActorRef = _.actorOf(InitialStateParser.props(), "InitialStateParser")
 
       val solverActor = system.actorOf(Props(new Solver(
         makeOpenlist,
@@ -36,7 +32,7 @@ class SolverIntegrationTestSpec
 
       solverActor ! Start(initialState)
 
-      expectMsgType[SolutionFound](1 seconds)
+      expectMsgType[SolutionFound](10 seconds)
     }
   }
 }
@@ -45,8 +41,8 @@ object SolverIntegrationTestSpec {
   // Define your test specific configuration here
   val config = """
     akka {
-      loglevel = "DEBUG"
-      actor.debug.receive=on
+      loglevel = "INFO"
+      actor.debug.receive=off
     }
                """
 }

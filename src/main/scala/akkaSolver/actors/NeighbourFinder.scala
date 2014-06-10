@@ -71,7 +71,7 @@ class NeighbourFinder extends Actor with ActorLogging {
             case _ =>
           }
         }
-      }), "MoveGathererHelper")
+      }), s"MoveGathererHelper-${parentState.state}")
 
       helperActor ! msg
     }
