@@ -49,6 +49,16 @@ class SolverIntegrationTestSpec
       val solution: SolutionFound = expectMsgType[SolutionFound](10 seconds)
       println(solution)
     }
+
+    "find the solution for the most difficult RushHour puzzle (#40)" in {
+      //http://www.cs.sjsu.edu/~stamp/cv/papers/rh.pdf
+      val initialState = "G,4,4,2,h|1,6,3,v|1,3,3,h|1,1,2,h|2,6,2,h|2,5,2,v|3,5,2,v|3,2,2,v|4,3,2,v|4,1,2,h|5,6,2,v|5,2,2,h|6,6,3,v"
+
+      solverActor ! Start(initialState)
+
+      val solution: SolutionFound = expectMsgType[SolutionFound](10 seconds)
+      println(solution)
+    }
   }
 }
 

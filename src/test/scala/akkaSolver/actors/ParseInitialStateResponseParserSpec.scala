@@ -43,7 +43,37 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
       val actorRef = system.actorOf(InitialStateParser.props())
       actorRef ! ParseInitialStateRequest("BOMMSFRIKADELLE")
 
-      expectMsg(50 millis, ParseInitialStateError("KAPOTT - failed to match List(BOMMSFRIKADELLE)"))
+      expectMsg(50 millis, ParseInitialStateError("unknown format"))
+    }
+
+    "parse a RushHour Jam correctly" in {
+      val input = """Jam-1
+                    |6
+                    |1 2 h 2
+                    |0 1 v 3
+                    |0 0 h 2
+                    |3 1 v 3
+                    |2 5 h 3
+                    |0 4 v 2
+                    |4 4 h 2
+                    |5 0 v 3""".stripMargin
+
+      val expectedState: String = "22123441"
+      val expectedPieces: Vector[UnblockMePiece] = Vector(
+        UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 3, pieceIndex = 0),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 1, pieceIndex = 1),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 1, pieceIndex = 2),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 4, pieceIndex = 3),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 6, pieceIndex = 4),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 1, pieceIndex = 5),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 5, pieceIndex = 6),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 6, pieceIndex = 7)
+      )
+
+      val initialStateParserActor = system.actorOf(InitialStateParser.props())
+      initialStateParserActor ! ParseInitialStateRequest(input)
+
+      expectMsg(50 millis, ParseInitialStateResponse(expectedState, expectedPieces))
     }
   }
 }
@@ -55,6 +85,6 @@ object ParseInitialStateResponseParserSpec {
       loglevel = "DEBUG"
       actor.debug.receive=on
     }
-                              """
+               """
 
 }
