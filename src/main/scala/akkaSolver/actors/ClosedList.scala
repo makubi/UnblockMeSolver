@@ -25,7 +25,7 @@ class ClosedList extends Actor with ActorLogging {
         }
       }
 
-      log.info(s"closedList has ${closedList.size} entries")
+      log.debug(s"closedList has ${closedList.size} entries")
       openList ! DoneAddingNeighbours(solver)
 
     case AddStateToClosedList(state) =>
