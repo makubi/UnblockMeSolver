@@ -56,8 +56,8 @@ object SolverIntegrationTestSpec {
   // Define your test specific configuration here
   val config = """
     akka {
-      loglevel = "DEBUG"
-      actor.debug.receive=on
+      loglevel = "INFO"
+      actor.debug.receive=off
     }
                """
 }

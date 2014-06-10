@@ -71,16 +71,15 @@ class Solver(makeOpenList: ActorRefFactory => ActorRef, makeClosedList: ActorRef
       closedList ! AddToOpenListIfNotOnClosedList(parent, neighbourStates, openList)
 
       if (solutionOption.isDefined) {
-
-        openList ! SolutionFoundProvidePathRequest(initialState, solutionOption.get)
         context.children.toList.filterNot(child => child == openList).foreach(context.stop)
+        openList ! SolutionFoundProvidePathRequest(initialState, solutionOption.get)
       }
 
 
     case SolutionFoundProvidePathResponse(initialStateString, path, moves) => {
-      solutionRequester ! SolutionFound(initialStateString, path, moves)
       context.children.foreach(c => context.stop(c))
       context.unbecome()
+      solutionRequester ! SolutionFound(initialStateString, path, moves)
     }
   }
 
