@@ -58,15 +58,15 @@ with WordSpecLike with Matchers with BeforeAndAfterAll {
                     |4 4 h 2
                     |5 0 v 3""".stripMargin
 
-      val expectedState: String = "22123551"
+      val expectedState: String = "25153256"
       val expectedPieces: Vector[UnblockMePiece] = Vector(
-        UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 3, pieceIndex = 0),
+        UnblockMePiece(isGoalPiece = true, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 4, pieceIndex = 0),
         UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 1, pieceIndex = 1),
-        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 1, pieceIndex = 2),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 6, pieceIndex = 2),
         UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 4, pieceIndex = 3),
-        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 6, pieceIndex = 4),
+        UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 1, pieceIndex = 4),
         UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Vertical, positionOnTheFixedAxis = 1, pieceIndex = 5),
-        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 5, pieceIndex = 6),
+        UnblockMePiece(isGoalPiece = false, length = 2, orientation = Orientation.Horizontal, positionOnTheFixedAxis = 2, pieceIndex = 6),
         UnblockMePiece(isGoalPiece = false, length = 3, orientation = Orientation.Vertical, positionOnTheFixedAxis = 6, pieceIndex = 7)
       )
 
