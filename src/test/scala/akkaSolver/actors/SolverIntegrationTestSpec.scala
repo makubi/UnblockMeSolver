@@ -90,4 +90,14 @@ object SolverIntegrationTestSpec {
       actor.debug.receive=off
     }
                """
+
+  /*
+      akka.actor.deployment {
+      /Solver/NeighbourFinder {
+        router = round-robin-pool
+        nr-of-instances = 5
+      }
+    }
+
+   */
 }
